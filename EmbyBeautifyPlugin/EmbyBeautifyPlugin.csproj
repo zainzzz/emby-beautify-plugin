@@ -1,0 +1,35 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>net6.0</TargetFramework>
+    <AssemblyTitle>Emby Beautify Plugin</AssemblyTitle>
+    <AssemblyDescription>A plugin to beautify Emby Server interface with custom themes and enhanced UI</AssemblyDescription>
+    <AssemblyVersion>1.0.0.0</AssemblyVersion>
+    <FileVersion>1.0.0.0</FileVersion>
+    <GenerateAssemblyInfo>false</GenerateAssemblyInfo>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <!-- 使用最低兼容版本，但允许运行时使用更新版本 -->
+    <PackageReference Include="MediaBrowser.Server.Core" Version="4.7.0" ExcludeAssets="runtime" />
+    <PackageReference Include="MediaBrowser.Common" Version="4.7.0" ExcludeAssets="runtime" />
+    <PackageReference Include="Microsoft.Extensions.Logging.Abstractions" Version="6.0.0" />
+    <PackageReference Include="Microsoft.Extensions.Logging" Version="6.0.0" />
+    <PackageReference Include="Microsoft.Extensions.DependencyInjection.Abstractions" Version="6.0.0" />
+    <PackageReference Include="Newtonsoft.Json" Version="13.0.3" />
+  </ItemGroup>
+
+  <!-- 自动绑定重定向 -->
+  <PropertyGroup>
+    <AutoGenerateBindingRedirects>true</AutoGenerateBindingRedirects>
+    <GenerateBindingRedirectsOutputType>true</GenerateBindingRedirectsOutputType>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <EmbeddedResource Include="Views\SettingsPage.html" />
+    <EmbeddedResource Include="Views\PreviewPage.html" />
+    <EmbeddedResource Include="Views\ThemeSelection.html" />
+    <EmbeddedResource Include="Views\ThemeCustomizer.html" />
+  </ItemGroup>
+
+</Project>

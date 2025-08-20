@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="utf-8"?>
+<PluginConfiguration xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema">
+  <Name>Emby Beautify Plugin</Name>
+  <Description>A plugin to beautify Emby Server interface with custom themes and enhanced UI</Description>
+  <Version>1.0.0.0</Version>
+  <MinServerVersion>4.7.0.0</MinServerVersion>
+
+  <AssemblyFileName>EmbyBeautifyPlugin.dll</AssemblyFileName>
+  <Id>EmbyBeautifyPlugin</Id>
+  <Author>Emby Beautify Team</Author>
+  <Overview>Enhance your Emby Server with beautiful themes and modern UI improvements</Overview>
+  <Category>General</Category>
+  <ImageUrl>https://raw.githubusercontent.com/emby-beautify/plugin/main/logo.png</ImageUrl>
+  <IsPremium>false</IsPremium>
+</PluginConfiguration>

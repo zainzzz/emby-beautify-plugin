@@ -1,0 +1,780 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Emby 美化插件 - 主题预览</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: #f5f5f5;
+            min-height: 100vh;
+        }
+
+        .preview-container {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+
+        .header {
+            background: white;
+            padding: 30px;
+            border-radius: 15px;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+            margin-bottom: 30px;
+            text-align: center;
+        }
+
+        .header h1 {
+            color: #333;
+            font-size: 2.5em;
+            margin-bottom: 10px;
+            font-weight: 300;
+        }
+
+        .header p {
+            color: #666;
+            font-size: 1.1em;
+        }
+
+        .theme-selector {
+            background: white;
+            padding: 25px;
+            border-radius: 15px;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+            margin-bottom: 30px;
+        }
+
+        .theme-selector h2 {
+            color: #333;
+            margin-bottom: 20px;
+            font-size: 1.5em;
+        }
+
+        .theme-tabs {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+            margin-bottom: 20px;
+        }
+
+        .theme-tab {
+            padding: 12px 24px;
+            border: 2px solid #e1e5e9;
+            border-radius: 25px;
+            background: white;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-weight: 500;
+        }
+
+        .theme-tab:hover {
+            border-color: #4facfe;
+            transform: translateY(-2px);
+        }
+
+        .theme-tab.active {
+            background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);
+            color: white;
+            border-color: #4facfe;
+        }
+
+        .preview-options {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 20px;
+            align-items: center;
+        }
+
+        .option-group {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .option-group label {
+            font-weight: 500;
+            color: #555;
+        }
+
+        .option-group select,
+        .option-group input {
+            padding: 8px 12px;
+            border: 2px solid #e1e5e9;
+            border-radius: 6px;
+            font-size: 14px;
+        }
+
+        .preview-frame {
+            background: white;
+            border-radius: 15px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+            overflow: hidden;
+            margin-bottom: 30px;
+        }
+
+        .frame-header {
+            background: #f8f9fa;
+            padding: 15px 25px;
+            border-bottom: 1px solid #e1e5e9;
+            display: flex;
+            justify-content: between;
+            align-items: center;
+        }
+
+        .frame-title {
+            font-weight: 600;
+            color: #333;
+        }
+
+        .frame-controls {
+            display: flex;
+            gap: 10px;
+        }
+
+        .control-btn {
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+            border: none;
+            cursor: pointer;
+        }
+
+        .control-btn.close { background: #ff5f57; }
+        .control-btn.minimize { background: #ffbd2e; }
+        .control-btn.maximize { background: #28ca42; }
+
+        .preview-content {
+            padding: 0;
+            min-height: 600px;
+            position: relative;
+        }
+
+        .emby-mockup {
+            width: 100%;
+            height: 100%;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .mockup-header {
+            background: var(--primary-color, #4facfe);
+            color: white;
+            padding: 20px 30px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .mockup-logo {
+            font-size: 1.8em;
+            font-weight: bold;
+        }
+
+        .mockup-nav {
+            display: flex;
+            gap: 30px;
+        }
+
+        .mockup-nav a {
+            color: white;
+            text-decoration: none;
+            font-weight: 500;
+            opacity: 0.9;
+            transition: opacity 0.3s ease;
+        }
+
+        .mockup-nav a:hover {
+            opacity: 1;
+        }
+
+        .mockup-content {
+            padding: 30px;
+            background: var(--background-color, #f8f9fa);
+            min-height: 500px;
+        }
+
+        .content-section {
+            margin-bottom: 40px;
+        }
+
+        .section-title {
+            color: var(--text-color, #333);
+            font-size: 1.5em;
+            margin-bottom: 20px;
+            font-weight: 600;
+        }
+
+        .media-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 20px;
+        }
+
+        .media-card {
+            background: var(--surface-color, white);
+            border-radius: 12px;
+            overflow: hidden;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+            transition: all 0.3s ease;
+            cursor: pointer;
+        }
+
+        .media-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 8px 25px rgba(0, 0, 0, 0.15);
+        }
+
+        .media-poster {
+            height: 280px;
+            background: linear-gradient(135deg, var(--primary-color, #4facfe) 0%, var(--secondary-color, #00f2fe) 100%);
+            position: relative;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-size: 1.2em;
+            font-weight: 500;
+        }
+
+        .media-info {
+            padding: 15px;
+        }
+
+        .media-title {
+            color: var(--text-color, #333);
+            font-weight: 600;
+            margin-bottom: 5px;
+        }
+
+        .media-subtitle {
+            color: var(--text-color, #666);
+            font-size: 0.9em;
+            opacity: 0.8;
+        }
+
+        .sidebar {
+            position: fixed;
+            right: 20px;
+            top: 50%;
+            transform: translateY(-50%);
+            background: white;
+            padding: 25px;
+            border-radius: 15px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+            width: 300px;
+            max-height: 80vh;
+            overflow-y: auto;
+        }
+
+        .sidebar h3 {
+            color: #333;
+            margin-bottom: 20px;
+            font-size: 1.3em;
+        }
+
+        .color-palette {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 10px;
+            margin-bottom: 20px;
+        }
+
+        .color-swatch {
+            height: 40px;
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-size: 0.8em;
+            font-weight: 500;
+            text-shadow: 0 1px 2px rgba(0, 0, 0, 0.3);
+        }
+
+        .theme-info {
+            background: #f8f9fa;
+            padding: 15px;
+            border-radius: 10px;
+            margin-bottom: 20px;
+        }
+
+        .theme-info h4 {
+            color: #333;
+            margin-bottom: 10px;
+        }
+
+        .theme-info p {
+            color: #666;
+            font-size: 0.9em;
+            line-height: 1.5;
+        }
+
+        .apply-btn {
+            width: 100%;
+            padding: 12px;
+            background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);
+            color: white;
+            border: none;
+            border-radius: 8px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .apply-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(79, 172, 254, 0.3);
+        }
+
+        @media (max-width: 1200px) {
+            .sidebar {
+                position: static;
+                transform: none;
+                width: 100%;
+                margin-top: 30px;
+            }
+        }
+
+        @media (max-width: 768px) {
+            .preview-container {
+                padding: 10px;
+            }
+
+            .header {
+                padding: 20px;
+            }
+
+            .header h1 {
+                font-size: 2em;
+            }
+
+            .theme-tabs {
+                justify-content: center;
+            }
+
+            .preview-options {
+                justify-content: center;
+            }
+
+            .mockup-header {
+                padding: 15px 20px;
+            }
+
+            .mockup-nav {
+                display: none;
+            }
+
+            .mockup-content {
+                padding: 20px;
+            }
+
+            .media-grid {
+                grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+                gap: 15px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="preview-container">
+        <div class="header">
+            <h1>🎭 主题预览</h1>
+            <p>实时预览不同主题在 Emby 界面中的效果</p>
+        </div>
+
+        <div class="theme-selector">
+            <h2>选择主题</h2>
+            <div class="theme-tabs" id="themeTabs">
+                <!-- 主题标签将通过 JavaScript 动态生成 -->
+            </div>
+            
+            <div class="preview-options">
+                <div class="option-group">
+                    <label for="deviceType">设备类型:</label>
+                    <select id="deviceType">
+                        <option value="desktop">桌面</option>
+                        <option value="tablet">平板</option>
+                        <option value="mobile">移动</option>
+                    </select>
+                </div>
+                
+                <div class="option-group">
+                    <label for="animationSpeed">动画速度:</label>
+                    <select id="animationSpeed">
+                        <option value="slow">慢速</option>
+                        <option value="normal" selected>正常</option>
+                        <option value="fast">快速</option>
+                    </select>
+                </div>
+                
+                <div class="option-group">
+                    <label>
+                        <input type="checkbox" id="enableAnimations" checked> 启用动画
+                    </label>
+                </div>
+            </div>
+        </div>
+
+        <div class="preview-frame">
+            <div class="frame-header">
+                <div class="frame-title">Emby 界面预览</div>
+                <div class="frame-controls">
+                    <button class="control-btn close"></button>
+                    <button class="control-btn minimize"></button>
+                    <button class="control-btn maximize"></button>
+                </div>
+            </div>
+            
+            <div class="preview-content">
+                <div class="emby-mockup" id="embyMockup">
+                    <div class="mockup-header">
+                        <div class="mockup-logo">Emby</div>
+                        <nav class="mockup-nav">
+                            <a href="#">首页</a>
+                            <a href="#">电影</a>
+                            <a href="#">电视剧</a>
+                            <a href="#">音乐</a>
+                            <a href="#">设置</a>
+                        </nav>
+                    </div>
+                    
+                    <div class="mockup-content">
+                        <div class="content-section">
+                            <h2 class="section-title">最近添加</h2>
+                            <div class="media-grid" id="mediaGrid">
+                                <!-- 媒体卡片将通过 JavaScript 动态生成 -->
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="sidebar">
+            <h3>主题详情</h3>
+            
+            <div class="theme-info" id="themeInfo">
+                <h4>请选择一个主题</h4>
+                <p>选择左侧的主题标签来查看详细信息和颜色方案。</p>
+            </div>
+            
+            <div class="color-palette" id="colorPalette">
+                <!-- 颜色样本将通过 JavaScript 动态生成 -->
+            </div>
+            
+            <button class="apply-btn" id="applyTheme">应用此主题</button>
+        </div>
+    </div>
+
+    <script>
+        // 全局变量
+        let availableThemes = {{AVAILABLE_THEMES}};
+        let currentTheme = null;
+        let animationEnabled = true;
+
+        // DOM 元素
+        const elements = {
+            themeTabs: document.getElementById('themeTabs'),
+            deviceType: document.getElementById('deviceType'),
+            animationSpeed: document.getElementById('animationSpeed'),
+            enableAnimations: document.getElementById('enableAnimations'),
+            embyMockup: document.getElementById('embyMockup'),
+            mediaGrid: document.getElementById('mediaGrid'),
+            themeInfo: document.getElementById('themeInfo'),
+            colorPalette: document.getElementById('colorPalette'),
+            applyTheme: document.getElementById('applyTheme')
+        };
+
+        // 示例媒体数据
+        const sampleMedia = [
+            { title: '复仇者联盟', subtitle: '2019 • 动作片', type: 'movie' },
+            { title: '权力的游戏', subtitle: '2011-2019 • 剧情', type: 'series' },
+            { title: '星际穿越', subtitle: '2014 • 科幻片', type: 'movie' },
+            { title: '绝命毒师', subtitle: '2008-2013 • 犯罪', type: 'series' },
+            { title: '盗梦空间', subtitle: '2010 • 科幻片', type: 'movie' },
+            { title: '怪奇物语', subtitle: '2016-2022 • 科幻', type: 'series' }
+        ];
+
+        // 初始化页面
+        document.addEventListener('DOMContentLoaded', function() {
+            initializePage();
+            bindEvents();
+        });
+
+        // 初始化页面
+        function initializePage() {
+            try {
+                generateThemeTabs();
+                generateMediaGrid();
+                
+                // 选择第一个主题作为默认
+                if (availableThemes.length > 0) {
+                    selectTheme(availableThemes[0]);
+                }
+            } catch (error) {
+                console.error('初始化页面失败:', error);
+            }
+        }
+
+        // 生成主题标签
+        function generateThemeTabs() {
+            elements.themeTabs.innerHTML = '';
+            
+            availableThemes.forEach(theme => {
+                const tab = document.createElement('div');
+                tab.className = 'theme-tab';
+                tab.textContent = theme.Name;
+                tab.dataset.themeId = theme.Id;
+                
+                tab.addEventListener('click', () => selectTheme(theme));
+                elements.themeTabs.appendChild(tab);
+            });
+        }
+
+        // 生成媒体网格
+        function generateMediaGrid() {
+            elements.mediaGrid.innerHTML = '';
+            
+            sampleMedia.forEach(media => {
+                const card = document.createElement('div');
+                card.className = 'media-card';
+                
+                card.innerHTML = `
+                    <div class="media-poster">
+                        ${media.type === 'movie' ? '🎬' : '📺'}
+                    </div>
+                    <div class="media-info">
+                        <div class="media-title">${media.title}</div>
+                        <div class="media-subtitle">${media.subtitle}</div>
+                    </div>
+                `;
+                
+                elements.mediaGrid.appendChild(card);
+            });
+        }
+
+        // 选择主题
+        function selectTheme(theme) {
+            currentTheme = theme;
+            
+            // 更新标签状态
+            document.querySelectorAll('.theme-tab').forEach(tab => {
+                tab.classList.remove('active');
+            });
+            
+            const activeTab = document.querySelector(`[data-theme-id="${theme.Id}"]`);
+            if (activeTab) {
+                activeTab.classList.add('active');
+            }
+            
+            // 应用主题样式
+            applyThemeStyles(theme);
+            
+            // 更新主题信息
+            updateThemeInfo(theme);
+            
+            // 更新颜色面板
+            updateColorPalette(theme);
+        }
+
+        // 应用主题样式
+        function applyThemeStyles(theme) {
+            const root = document.documentElement;
+            
+            if (theme.Colors) {
+                root.style.setProperty('--primary-color', theme.Colors.Primary || '#4facfe');
+                root.style.setProperty('--secondary-color', theme.Colors.Secondary || '#00f2fe');
+                root.style.setProperty('--background-color', theme.Colors.Background || '#f8f9fa');
+                root.style.setProperty('--surface-color', theme.Colors.Surface || '#ffffff');
+                root.style.setProperty('--text-color', theme.Colors.Text || '#333333');
+                root.style.setProperty('--accent-color', theme.Colors.Accent || '#4facfe');
+            }
+            
+            // 添加动画效果
+            if (animationEnabled) {
+                addThemeTransition();
+            }
+        }
+
+        // 添加主题切换动画
+        function addThemeTransition() {
+            const mockup = elements.embyMockup;
+            mockup.style.transition = 'all 0.5s ease';
+            
+            // 短暂的缩放效果
+            mockup.style.transform = 'scale(0.98)';
+            setTimeout(() => {
+                mockup.style.transform = 'scale(1)';
+            }, 100);
+            
+            // 清除过渡效果
+            setTimeout(() => {
+                mockup.style.transition = '';
+            }, 500);
+        }
+
+        // 更新主题信息
+        function updateThemeInfo(theme) {
+            elements.themeInfo.innerHTML = `
+                <h4>${theme.Name}</h4>
+                <p><strong>描述:</strong> ${theme.Description || '暂无描述'}</p>
+                <p><strong>作者:</strong> ${theme.Author || '未知'}</p>
+                <p><strong>版本:</strong> ${theme.Version || '1.0.0'}</p>
+            `;
+        }
+
+        // 更新颜色面板
+        function updateColorPalette(theme) {
+            elements.colorPalette.innerHTML = '';
+            
+            if (theme.Colors) {
+                const colors = [
+                    { name: '主色', value: theme.Colors.Primary || '#4facfe' },
+                    { name: '辅色', value: theme.Colors.Secondary || '#00f2fe' },
+                    { name: '背景', value: theme.Colors.Background || '#f8f9fa' },
+                    { name: '表面', value: theme.Colors.Surface || '#ffffff' },
+                    { name: '文本', value: theme.Colors.Text || '#333333' },
+                    { name: '强调', value: theme.Colors.Accent || '#4facfe' }
+                ];
+                
+                colors.forEach(color => {
+                    const swatch = document.createElement('div');
+                    swatch.className = 'color-swatch';
+                    swatch.style.backgroundColor = color.value;
+                    swatch.textContent = color.name;
+                    swatch.title = `${color.name}: ${color.value}`;
+                    
+                    elements.colorPalette.appendChild(swatch);
+                });
+            }
+        }
+
+        // 绑定事件
+        function bindEvents() {
+            // 设备类型变更
+            elements.deviceType.addEventListener('change', updateDevicePreview);
+            
+            // 动画设置变更
+            elements.animationSpeed.addEventListener('change', updateAnimationSettings);
+            elements.enableAnimations.addEventListener('change', function() {
+                animationEnabled = this.checked;
+                updateAnimationSettings();
+            });
+            
+            // 应用主题按钮
+            elements.applyTheme.addEventListener('click', applyCurrentTheme);
+        }
+
+        // 更新设备预览
+        function updateDevicePreview() {
+            const deviceType = elements.deviceType.value;
+            const mockup = elements.embyMockup;
+            
+            // 移除现有的设备类
+            mockup.classList.remove('desktop-view', 'tablet-view', 'mobile-view');
+            
+            // 添加新的设备类
+            mockup.classList.add(`${deviceType}-view`);
+            
+            // 根据设备类型调整样式
+            switch (deviceType) {
+                case 'mobile':
+                    mockup.style.maxWidth = '375px';
+                    mockup.style.margin = '0 auto';
+                    break;
+                case 'tablet':
+                    mockup.style.maxWidth = '768px';
+                    mockup.style.margin = '0 auto';
+                    break;
+                default:
+                    mockup.style.maxWidth = '100%';
+                    mockup.style.margin = '0';
+            }
+        }
+
+        // 更新动画设置
+        function updateAnimationSettings() {
+            const speed = elements.animationSpeed.value;
+            const root = document.documentElement;
+            
+            let duration = '0.3s';
+            switch (speed) {
+                case 'slow':
+                    duration = '0.6s';
+                    break;
+                case 'fast':
+                    duration = '0.15s';
+                    break;
+                default:
+                    duration = '0.3s';
+            }
+            
+            if (animationEnabled) {
+                root.style.setProperty('--animation-duration', duration);
+                document.querySelectorAll('.media-card').forEach(card => {
+                    card.style.transition = `all ${duration} ease`;
+                });
+            } else {
+                root.style.setProperty('--animation-duration', '0s');
+                document.querySelectorAll('.media-card').forEach(card => {
+                    card.style.transition = 'none';
+                });
+            }
+        }
+
+        // 应用当前主题
+        async function applyCurrentTheme() {
+            if (!currentTheme) {
+                alert('请先选择一个主题');
+                return;
+            }
+            
+            try {
+                elements.applyTheme.textContent = '应用中...';
+                elements.applyTheme.disabled = true;
+                
+                // 获取当前配置
+                const configResponse = await fetch('/emby-beautify/configuration');
+                const configData = await configResponse.json();
+                
+                // 更新主题设置
+                const updatedConfig = {
+                    ...configData.Configuration,
+                    ActiveThemeId: currentTheme.Id
+                };
+                
+                // 保存配置
+                const updateResponse = await fetch('/emby-beautify/configuration', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({ Configuration: updatedConfig })
+                });
+                
+                const result = await updateResponse.json();
+                
+                if (result.Success) {
+                    alert(`主题 "${currentTheme.Name}" 已成功应用！`);
+                } else {
+                    throw new Error(result.Message || '应用主题失败');
+                }
+            } catch (error) {
+                console.error('应用主题失败:', error);
+                alert('应用主题失败: ' + error.message);
+            } finally {
+                elements.applyTheme.textContent = '应用此主题';
+                elements.applyTheme.disabled = false;
+            }
+        }
+    </script>
+</body>
+</html>
