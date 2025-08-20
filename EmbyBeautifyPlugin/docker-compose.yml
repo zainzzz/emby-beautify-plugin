@@ -1,0 +1,46 @@
+version: '3.8'
+
+services:
+  emby:
+    image: lscr.io/linuxserver/emby:latest
+    container_name: emby-server
+    environment:
+      - PUID=1000
+      - PGID=1000
+      - TZ=Asia/Shanghai  # 根据你的时区调整
+    volumes:
+      # Emby配置目录
+      - ./emby-config:/config
+      # 媒体文件目录（根据你的需要调整路径）
+      - ./media:/data/movies
+      - ./tv:/data/tvshows
+      # 插件目录挂载 - 将构建好的插件直接挂载到容器
+      - ./bin/Release:/config/plugins/EmbyBeautifyPlugin:ro
+      - ./plugin.xml:/config/plugins/EmbyBeautifyPlugin/plugin.xml:ro
+    ports:
+      - "8096:8096"  # HTTP端口
+      - "8920:8920"  # HTTPS端口
+    restart: unless-stopped
+    networks:
+      - emby-network
+
+  # 插件构建服务 - 用于构建插件
+  plugin-builder:
+    image: mcr.microsoft.com/dotnet/sdk:6.0
+    working_dir: /src
+    volumes:
+      - .:/src
+    command: >
+      sh -c "
+        echo '开始构建 Emby Beautify Plugin...' &&
+        dotnet restore &&
+        dotnet build -c Release -o /src/bin/Release &&
+        echo '插件构建完成！文件位于 ./bin/Release/' &&
+        echo '请重启 emby 服务以加载插件: docker-compose restart emby'
+      "
+    profiles:
+      - build
+
+networks:
+  emby-network:
+    driver: bridge

@@ -1,0 +1,1035 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Emby 美化插件 - 主题自定义</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: #f5f5f5;
+            min-height: 100vh;
+            display: flex;
+        }
+
+        .sidebar {
+            width: 350px;
+            background: white;
+            box-shadow: 2px 0 10px rgba(0, 0, 0, 0.1);
+            overflow-y: auto;
+            z-index: 100;
+        }
+
+        .sidebar-header {
+            padding: 25px;
+            background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);
+            color: white;
+        }
+
+        .sidebar-header h1 {
+            font-size: 1.5em;
+            margin-bottom: 5px;
+            font-weight: 600;
+        }
+
+        .sidebar-header p {
+            opacity: 0.9;
+            font-size: 0.9em;
+        }
+
+        .sidebar-content {
+            padding: 0;
+        }
+
+        .customizer-section {
+            border-bottom: 1px solid #e1e5e9;
+        }
+
+        .section-header {
+            padding: 20px 25px;
+            background: #f8f9fa;
+            cursor: pointer;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            font-weight: 600;
+            color: #333;
+            transition: background 0.3s ease;
+        }
+
+        .section-header:hover {
+            background: #e9ecef;
+        }
+
+        .section-header.active {
+            background: #e3f2fd;
+            color: #1976d2;
+        }
+
+        .section-toggle {
+            font-size: 1.2em;
+            transition: transform 0.3s ease;
+        }
+
+        .section-header.active .section-toggle {
+            transform: rotate(180deg);
+        }
+
+        .section-content {
+            padding: 0 25px;
+            max-height: 0;
+            overflow: hidden;
+            transition: all 0.3s ease;
+        }
+
+        .section-content.active {
+            max-height: 1000px;
+            padding: 20px 25px;
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 500;
+            color: #555;
+            font-size: 0.9em;
+        }
+
+        .form-control {
+            width: 100%;
+            padding: 10px 12px;
+            border: 2px solid #e1e5e9;
+            border-radius: 6px;
+            font-size: 14px;
+            transition: all 0.3s ease;
+        }
+
+        .form-control:focus {
+            outline: none;
+            border-color: #4facfe;
+            box-shadow: 0 0 0 3px rgba(79, 172, 254, 0.1);
+        }
+
+        .color-input {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .color-picker {
+            width: 50px;
+            height: 40px;
+            border: 2px solid #e1e5e9;
+            border-radius: 6px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .color-picker:hover {
+            border-color: #4facfe;
+        }
+
+        .color-text {
+            flex: 1;
+            font-family: 'Courier New', monospace;
+            text-transform: uppercase;
+        }
+
+        .range-input {
+            width: 100%;
+            margin: 10px 0;
+        }
+
+        .range-value {
+            display: inline-block;
+            background: #f0f0f0;
+            padding: 4px 8px;
+            border-radius: 4px;
+            font-size: 0.85em;
+            font-weight: 500;
+            min-width: 50px;
+            text-align: center;
+        }
+
+        .preset-colors {
+            display: grid;
+            grid-template-columns: repeat(6, 1fr);
+            gap: 8px;
+            margin-top: 10px;
+        }
+
+        .preset-color {
+            width: 30px;
+            height: 30px;
+            border-radius: 50%;
+            cursor: pointer;
+            border: 2px solid transparent;
+            transition: all 0.3s ease;
+        }
+
+        .preset-color:hover {
+            border-color: #4facfe;
+            transform: scale(1.1);
+        }
+
+        .main-content {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .toolbar {
+            background: white;
+            padding: 15px 25px;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            z-index: 50;
+        }
+
+        .toolbar-left {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+
+        .toolbar-right {
+            display: flex;
+            gap: 10px;
+        }
+
+        .btn {
+            padding: 10px 20px;
+            border: none;
+            border-radius: 6px;
+            font-size: 14px;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);
+            color: white;
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(79, 172, 254, 0.3);
+        }
+
+        .btn-secondary {
+            background: #6c757d;
+            color: white;
+        }
+
+        .btn-secondary:hover {
+            background: #5a6268;
+        }
+
+        .btn-outline {
+            background: transparent;
+            color: #6c757d;
+            border: 2px solid #6c757d;
+        }
+
+        .btn-outline:hover {
+            background: #6c757d;
+            color: white;
+        }
+
+        .preview-container {
+            flex: 1;
+            padding: 25px;
+            overflow: auto;
+        }
+
+        .preview-frame {
+            background: white;
+            border-radius: 10px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+            overflow: hidden;
+            height: 100%;
+            min-height: 600px;
+        }
+
+        .emby-preview {
+            width: 100%;
+            height: 100%;
+            position: relative;
+            background: var(--preview-background, #f8f9fa);
+            color: var(--preview-text, #333);
+            transition: all 0.3s ease;
+        }
+
+        .preview-header {
+            background: var(--preview-primary, #4facfe);
+            color: white;
+            padding: 20px 30px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .preview-logo {
+            font-size: 1.8em;
+            font-weight: bold;
+        }
+
+        .preview-nav {
+            display: flex;
+            gap: 25px;
+        }
+
+        .preview-nav a {
+            color: white;
+            text-decoration: none;
+            font-weight: 500;
+            opacity: 0.9;
+            transition: opacity 0.3s ease;
+        }
+
+        .preview-nav a:hover {
+            opacity: 1;
+        }
+
+        .preview-content {
+            padding: 30px;
+        }
+
+        .content-section {
+            margin-bottom: 30px;
+        }
+
+        .section-title {
+            font-size: 1.4em;
+            margin-bottom: 20px;
+            font-weight: 600;
+            color: var(--preview-text, #333);
+        }
+
+        .media-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 20px;
+        }
+
+        .media-card {
+            background: var(--preview-surface, white);
+            border-radius: var(--preview-border-radius, 8px);
+            overflow: hidden;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+            transition: all 0.3s ease;
+            cursor: pointer;
+        }
+
+        .media-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 8px 25px rgba(0, 0, 0, 0.15);
+        }
+
+        .media-poster {
+            height: 250px;
+            background: linear-gradient(135deg, var(--preview-primary, #4facfe) 0%, var(--preview-secondary, #00f2fe) 100%);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-size: 1.2em;
+            font-weight: 500;
+        }
+
+        .media-info {
+            padding: 15px;
+        }
+
+        .media-title {
+            font-weight: 600;
+            margin-bottom: 5px;
+            color: var(--preview-text, #333);
+        }
+
+        .media-subtitle {
+            color: var(--preview-text, #666);
+            font-size: 0.9em;
+            opacity: 0.8;
+        }
+
+        .sample-buttons {
+            display: flex;
+            gap: 15px;
+            margin-top: 20px;
+        }
+
+        .sample-btn {
+            padding: 12px 24px;
+            border: none;
+            border-radius: var(--preview-border-radius, 8px);
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .sample-btn.primary {
+            background: var(--preview-primary, #4facfe);
+            color: white;
+        }
+
+        .sample-btn.secondary {
+            background: var(--preview-secondary, #00f2fe);
+            color: white;
+        }
+
+        .sample-btn.accent {
+            background: var(--preview-accent, #4facfe);
+            color: white;
+        }
+
+        .sample-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
+        }
+
+        .status-bar {
+            position: fixed;
+            bottom: 0;
+            left: 350px;
+            right: 0;
+            background: white;
+            padding: 15px 25px;
+            box-shadow: 0 -2px 10px rgba(0, 0, 0, 0.1);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            z-index: 50;
+        }
+
+        .status-info {
+            color: #666;
+            font-size: 0.9em;
+        }
+
+        .status-actions {
+            display: flex;
+            gap: 10px;
+        }
+
+        @media (max-width: 768px) {
+            body {
+                flex-direction: column;
+            }
+
+            .sidebar {
+                width: 100%;
+                height: auto;
+                max-height: 50vh;
+            }
+
+            .status-bar {
+                left: 0;
+                position: static;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="sidebar">
+        <div class="sidebar-header">
+            <h1>🎨 主题自定义</h1>
+            <p>调整颜色、字体和布局设置</p>
+        </div>
+        
+        <div class="sidebar-content">
+            <!-- 颜色设置 -->
+            <div class="customizer-section">
+                <div class="section-header active" onclick="toggleSection(this)">
+                    <span>🎨 颜色设置</span>
+                    <span class="section-toggle">▼</span>
+                </div>
+                <div class="section-content active">
+                    <div class="form-group">
+                        <label for="primaryColor">主色调</label>
+                        <div class="color-input">
+                            <input type="color" id="primaryColor" class="color-picker" value="#4facfe">
+                            <input type="text" class="form-control color-text" value="#4facfe">
+                        </div>
+                        <div class="preset-colors" id="primaryPresets">
+                            <!-- 预设颜色将动态生成 -->
+                        </div>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="secondaryColor">辅助色</label>
+                        <div class="color-input">
+                            <input type="color" id="secondaryColor" class="color-picker" value="#00f2fe">
+                            <input type="text" class="form-control color-text" value="#00f2fe">
+                        </div>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="backgroundColor">背景色</label>
+                        <div class="color-input">
+                            <input type="color" id="backgroundColor" class="color-picker" value="#f8f9fa">
+                            <input type="text" class="form-control color-text" value="#f8f9fa">
+                        </div>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="surfaceColor">表面色</label>
+                        <div class="color-input">
+                            <input type="color" id="surfaceColor" class="color-picker" value="#ffffff">
+                            <input type="text" class="form-control color-text" value="#ffffff">
+                        </div>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="textColor">文本色</label>
+                        <div class="color-input">
+                            <input type="color" id="textColor" class="color-picker" value="#333333">
+                            <input type="text" class="form-control color-text" value="#333333">
+                        </div>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="accentColor">强调色</label>
+                        <div class="color-input">
+                            <input type="color" id="accentColor" class="color-picker" value="#4facfe">
+                            <input type="text" class="form-control color-text" value="#4facfe">
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- 字体设置 -->
+            <div class="customizer-section">
+                <div class="section-header" onclick="toggleSection(this)">
+                    <span>📝 字体设置</span>
+                    <span class="section-toggle">▼</span>
+                </div>
+                <div class="section-content">
+                    <div class="form-group">
+                        <label for="fontFamily">字体族</label>
+                        <select id="fontFamily" class="form-control">
+                            <option value="Segoe UI, sans-serif">Segoe UI</option>
+                            <option value="Arial, sans-serif">Arial</option>
+                            <option value="Helvetica, sans-serif">Helvetica</option>
+                            <option value="Georgia, serif">Georgia</option>
+                            <option value="Times New Roman, serif">Times New Roman</option>
+                            <option value="Courier New, monospace">Courier New</option>
+                        </select>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="fontSize">字体大小 <span class="range-value" id="fontSizeValue">14px</span></label>
+                        <input type="range" id="fontSize" class="range-input" min="12" max="20" value="14">
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="lineHeight">行高 <span class="range-value" id="lineHeightValue">1.5</span></label>
+                        <input type="range" id="lineHeight" class="range-input" min="1.2" max="2.0" step="0.1" value="1.5">
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="fontWeight">字体粗细</label>
+                        <select id="fontWeight" class="form-control">
+                            <option value="300">细体 (300)</option>
+                            <option value="400" selected>正常 (400)</option>
+                            <option value="500">中等 (500)</option>
+                            <option value="600">半粗 (600)</option>
+                            <option value="700">粗体 (700)</option>
+                        </select>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- 布局设置 -->
+            <div class="customizer-section">
+                <div class="section-header" onclick="toggleSection(this)">
+                    <span>📐 布局设置</span>
+                    <span class="section-toggle">▼</span>
+                </div>
+                <div class="section-content">
+                    <div class="form-group">
+                        <label for="borderRadius">圆角大小 <span class="range-value" id="borderRadiusValue">8px</span></label>
+                        <input type="range" id="borderRadius" class="range-input" min="0" max="20" value="8">
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="spacing">间距大小 <span class="range-value" id="spacingValue">16px</span></label>
+                        <input type="range" id="spacing" class="range-input" min="8" max="32" value="16">
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="maxWidth">最大宽度 <span class="range-value" id="maxWidthValue">1200px</span></label>
+                        <input type="range" id="maxWidth" class="range-input" min="1000" max="1600" step="50" value="1200">
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <div class="main-content">
+        <div class="toolbar">
+            <div class="toolbar-left">
+                <h2>实时预览</h2>
+                <span class="status-info">正在编辑自定义主题</span>
+            </div>
+            <div class="toolbar-right">
+                <button class="btn btn-outline" onclick="resetToDefault()">🔄 重置</button>
+                <button class="btn btn-secondary" onclick="exportTheme()">📤 导出</button>
+                <button class="btn btn-primary" onclick="saveCustomTheme()">💾 保存主题</button>
+            </div>
+        </div>
+        
+        <div class="preview-container">
+            <div class="preview-frame">
+                <div class="emby-preview" id="embyPreview">
+                    <div class="preview-header">
+                        <div class="preview-logo">Emby</div>
+                        <nav class="preview-nav">
+                            <a href="#">首页</a>
+                            <a href="#">电影</a>
+                            <a href="#">电视剧</a>
+                            <a href="#">音乐</a>
+                            <a href="#">设置</a>
+                        </nav>
+                    </div>
+                    
+                    <div class="preview-content">
+                        <div class="content-section">
+                            <h2 class="section-title">最近添加</h2>
+                            <div class="media-grid">
+                                <div class="media-card">
+                                    <div class="media-poster">🎬</div>
+                                    <div class="media-info">
+                                        <div class="media-title">复仇者联盟</div>
+                                        <div class="media-subtitle">2019 • 动作片</div>
+                                    </div>
+                                </div>
+                                <div class="media-card">
+                                    <div class="media-poster">📺</div>
+                                    <div class="media-info">
+                                        <div class="media-title">权力的游戏</div>
+                                        <div class="media-subtitle">2011-2019 • 剧情</div>
+                                    </div>
+                                </div>
+                                <div class="media-card">
+                                    <div class="media-poster">🎵</div>
+                                    <div class="media-info">
+                                        <div class="media-title">流行音乐</div>
+                                        <div class="media-subtitle">2023 • 音乐专辑</div>
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <div class="sample-buttons">
+                                <button class="sample-btn primary">主要按钮</button>
+                                <button class="sample-btn secondary">次要按钮</button>
+                                <button class="sample-btn accent">强调按钮</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <div class="status-bar">
+        <div class="status-info">
+            <span id="lastModified">最后修改: 刚刚</span>
+        </div>
+        <div class="status-actions">
+            <button class="btn btn-outline" onclick="previewInNewWindow()">👁️ 新窗口预览</button>
+            <button class="btn btn-primary" onclick="applyTheme()">✨ 应用主题</button>
+        </div>
+    </div>
+
+    <script>
+        // 全局变量
+        let activeTheme = {{ACTIVE_THEME}};
+        let currentConfig = {{CURRENT_CONFIG}};
+        let customTheme = null;
+        let lastModified = new Date();
+
+        // DOM 元素
+        const elements = {
+            primaryColor: document.getElementById('primaryColor'),
+            secondaryColor: document.getElementById('secondaryColor'),
+            backgroundColor: document.getElementById('backgroundColor'),
+            surfaceColor: document.getElementById('surfaceColor'),
+            textColor: document.getElementById('textColor'),
+            accentColor: document.getElementById('accentColor'),
+            fontFamily: document.getElementById('fontFamily'),
+            fontSize: document.getElementById('fontSize'),
+            lineHeight: document.getElementById('lineHeight'),
+            fontWeight: document.getElementById('fontWeight'),
+            borderRadius: document.getElementById('borderRadius'),
+            spacing: document.getElementById('spacing'),
+            maxWidth: document.getElementById('maxWidth'),
+            embyPreview: document.getElementById('embyPreview'),
+            lastModified: document.getElementById('lastModified')
+        };
+
+        // 预设颜色
+        const presetColors = [
+            '#4facfe', '#00f2fe', '#fa709a', '#fee140',
+            '#a8edea', '#fed6e3', '#ffecd2', '#fcb69f',
+            '#667eea', '#764ba2', '#f093fb', '#f5576c',
+            '#4ecdc4', '#44a08d', '#ffeaa7', '#fab1a0'
+        ];
+
+        // 初始化页面
+        document.addEventListener('DOMContentLoaded', function() {
+            initializePage();
+            bindEvents();
+        });
+
+        // 初始化页面
+        function initializePage() {
+            try {
+                // 初始化自定义主题
+                initializeCustomTheme();
+                
+                // 生成预设颜色
+                generatePresetColors();
+                
+                // 更新预览
+                updatePreview();
+                
+                // 更新范围输入显示值
+                updateRangeValues();
+                
+                console.log('主题自定义器初始化完成');
+            } catch (error) {
+                console.error('初始化失败:', error);
+            }
+        }
+
+        // 初始化自定义主题
+        function initializeCustomTheme() {
+            if (activeTheme) {
+                customTheme = JSON.parse(JSON.stringify(activeTheme));
+                loadThemeToControls(customTheme);
+            } else {
+                // 创建默认自定义主题
+                customTheme = {
+                    Id: 'custom-theme-' + Date.now(),
+                    Name: '自定义主题',
+                    Description: '用户自定义的主题',
+                    Author: '用户',
+                    Version: '1.0.0',
+                    Colors: {
+                        Primary: '#4facfe',
+                        Secondary: '#00f2fe',
+                        Background: '#f8f9fa',
+                        Surface: '#ffffff',
+                        Text: '#333333',
+                        Accent: '#4facfe'
+                    },
+                    Typography: {
+                        FontFamily: 'Segoe UI, sans-serif',
+                        FontSize: '14px',
+                        LineHeight: '1.5',
+                        FontWeight: '400'
+                    },
+                    Layout: {
+                        BorderRadius: '8px',
+                        Spacing: '16px',
+                        MaxWidth: '1200px'
+                    }
+                };
+            }
+        }
+
+        // 加载主题到控件
+        function loadThemeToControls(theme) {
+            if (theme.Colors) {
+                elements.primaryColor.value = theme.Colors.Primary || '#4facfe';
+                elements.secondaryColor.value = theme.Colors.Secondary || '#00f2fe';
+                elements.backgroundColor.value = theme.Colors.Background || '#f8f9fa';
+                elements.surfaceColor.value = theme.Colors.Surface || '#ffffff';
+                elements.textColor.value = theme.Colors.Text || '#333333';
+                elements.accentColor.value = theme.Colors.Accent || '#4facfe';
+            }
+            
+            if (theme.Typography) {
+                elements.fontFamily.value = theme.Typography.FontFamily || 'Segoe UI, sans-serif';
+                elements.fontSize.value = parseInt(theme.Typography.FontSize) || 14;
+                elements.lineHeight.value = parseFloat(theme.Typography.LineHeight) || 1.5;
+                elements.fontWeight.value = theme.Typography.FontWeight || '400';
+            }
+            
+            if (theme.Layout) {
+                elements.borderRadius.value = parseInt(theme.Layout.BorderRadius) || 8;
+                elements.spacing.value = parseInt(theme.Layout.Spacing) || 16;
+                elements.maxWidth.value = parseInt(theme.Layout.MaxWidth) || 1200;
+            }
+            
+            // 同步颜色文本框
+            syncColorInputs();
+        }
+
+        // 生成预设颜色
+        function generatePresetColors() {
+            const container = document.getElementById('primaryPresets');
+            container.innerHTML = '';
+            
+            presetColors.forEach(color => {
+                const preset = document.createElement('div');
+                preset.className = 'preset-color';
+                preset.style.backgroundColor = color;
+                preset.title = color;
+                preset.addEventListener('click', () => {
+                    elements.primaryColor.value = color;
+                    updateCustomTheme();
+                });
+                container.appendChild(preset);
+            });
+        }
+
+        // 绑定事件
+        function bindEvents() {
+            // 颜色输入事件
+            const colorInputs = [
+                elements.primaryColor, elements.secondaryColor, elements.backgroundColor,
+                elements.surfaceColor, elements.textColor, elements.accentColor
+            ];
+            
+            colorInputs.forEach(input => {
+                input.addEventListener('input', updateCustomTheme);
+                input.addEventListener('change', syncColorInputs);
+            });
+            
+            // 字体和布局输入事件
+            const otherInputs = [
+                elements.fontFamily, elements.fontSize, elements.lineHeight,
+                elements.fontWeight, elements.borderRadius, elements.spacing, elements.maxWidth
+            ];
+            
+            otherInputs.forEach(input => {
+                input.addEventListener('input', updateCustomTheme);
+                input.addEventListener('change', updateRangeValues);
+            });
+        }
+
+        // 同步颜色输入框
+        function syncColorInputs() {
+            const colorPairs = [
+                [elements.primaryColor, elements.primaryColor.nextElementSibling],
+                [elements.secondaryColor, elements.secondaryColor.nextElementSibling],
+                [elements.backgroundColor, elements.backgroundColor.nextElementSibling],
+                [elements.surfaceColor, elements.surfaceColor.nextElementSibling],
+                [elements.textColor, elements.textColor.nextElementSibling],
+                [elements.accentColor, elements.accentColor.nextElementSibling]
+            ];
+            
+            colorPairs.forEach(([colorPicker, textInput]) => {
+                if (textInput && textInput.classList.contains('color-text')) {
+                    textInput.value = colorPicker.value.toUpperCase();
+                }
+            });
+        }
+
+        // 更新范围输入显示值
+        function updateRangeValues() {
+            document.getElementById('fontSizeValue').textContent = elements.fontSize.value + 'px';
+            document.getElementById('lineHeightValue').textContent = elements.lineHeight.value;
+            document.getElementById('borderRadiusValue').textContent = elements.borderRadius.value + 'px';
+            document.getElementById('spacingValue').textContent = elements.spacing.value + 'px';
+            document.getElementById('maxWidthValue').textContent = elements.maxWidth.value + 'px';
+        }
+
+        // 更新自定义主题
+        function updateCustomTheme() {
+            if (!customTheme) return;
+            
+            // 更新颜色
+            customTheme.Colors = {
+                Primary: elements.primaryColor.value,
+                Secondary: elements.secondaryColor.value,
+                Background: elements.backgroundColor.value,
+                Surface: elements.surfaceColor.value,
+                Text: elements.textColor.value,
+                Accent: elements.accentColor.value
+            };
+            
+            // 更新字体
+            customTheme.Typography = {
+                FontFamily: elements.fontFamily.value,
+                FontSize: elements.fontSize.value + 'px',
+                LineHeight: elements.lineHeight.value,
+                FontWeight: elements.fontWeight.value
+            };
+            
+            // 更新布局
+            customTheme.Layout = {
+                BorderRadius: elements.borderRadius.value + 'px',
+                Spacing: elements.spacing.value + 'px',
+                MaxWidth: elements.maxWidth.value + 'px'
+            };
+            
+            // 更新最后修改时间
+            lastModified = new Date();
+            elements.lastModified.textContent = '最后修改: 刚刚';
+            
+            // 更新预览
+            updatePreview();
+            updateRangeValues();
+            syncColorInputs();
+        }
+
+        // 更新预览
+        function updatePreview() {
+            if (!customTheme) return;
+            
+            const preview = elements.embyPreview;
+            const colors = customTheme.Colors;
+            const typography = customTheme.Typography;
+            const layout = customTheme.Layout;
+            
+            // 应用CSS变量
+            preview.style.setProperty('--preview-primary', colors.Primary);
+            preview.style.setProperty('--preview-secondary', colors.Secondary);
+            preview.style.setProperty('--preview-background', colors.Background);
+            preview.style.setProperty('--preview-surface', colors.Surface);
+            preview.style.setProperty('--preview-text', colors.Text);
+            preview.style.setProperty('--preview-accent', colors.Accent);
+            preview.style.setProperty('--preview-border-radius', layout.BorderRadius);
+            
+            // 应用字体样式
+            preview.style.fontFamily = typography.FontFamily;
+            preview.style.fontSize = typography.FontSize;
+            preview.style.lineHeight = typography.LineHeight;
+            preview.style.fontWeight = typography.FontWeight;
+        }
+
+        // 切换侧边栏部分
+        function toggleSection(header) {
+            const content = header.nextElementSibling;
+            const isActive = header.classList.contains('active');
+            
+            if (isActive) {
+                header.classList.remove('active');
+                content.classList.remove('active');
+            } else {
+                header.classList.add('active');
+                content.classList.add('active');
+            }
+        }
+
+        // 重置为默认
+        function resetToDefault() {
+            if (confirm('确定要重置所有设置为默认值吗？')) {
+                initializeCustomTheme();
+                loadThemeToControls(customTheme);
+                updatePreview();
+                updateRangeValues();
+            }
+        }
+
+        // 导出主题
+        function exportTheme() {
+            if (!customTheme) return;
+            
+            const themeJson = JSON.stringify(customTheme, null, 2);
+            const blob = new Blob([themeJson], { type: 'application/json' });
+            const url = URL.createObjectURL(blob);
+            
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = `${customTheme.Name.replace(/\s+/g, '-')}.json`;
+            document.body.appendChild(a);
+            a.click();
+            document.body.removeChild(a);
+            URL.revokeObjectURL(url);
+            
+            alert('主题已导出到下载文件夹');
+        }
+
+        // 保存自定义主题
+        async function saveCustomTheme() {
+            if (!customTheme) return;
+            
+            try {
+                // 这里应该调用API保存主题
+                // 暂时使用localStorage模拟
+                const savedThemes = JSON.parse(localStorage.getItem('customThemes') || '[]');
+                savedThemes.push(customTheme);
+                localStorage.setItem('customThemes', JSON.stringify(savedThemes));
+                
+                alert(`主题 "${customTheme.Name}" 已保存成功！`);
+            } catch (error) {
+                console.error('保存主题失败:', error);
+                alert('保存失败: ' + error.message);
+            }
+        }
+
+        // 在新窗口预览
+        function previewInNewWindow() {
+            const previewWindow = window.open('', '_blank', 'width=1200,height=800');
+            if (previewWindow) {
+                previewWindow.document.write(`
+                    <!DOCTYPE html>
+                    <html>
+                    <head>
+                        <title>主题预览 - ${customTheme.Name}</title>
+                        <style>
+                            body { margin: 0; font-family: ${customTheme.Typography.FontFamily}; }
+                            .preview { background: ${customTheme.Colors.Background}; min-height: 100vh; }
+                            .header { background: ${customTheme.Colors.Primary}; color: white; padding: 20px; }
+                            .content { padding: 20px; color: ${customTheme.Colors.Text}; }
+                        </style>
+                    </head>
+                    <body>
+                        <div class="preview">
+                            <div class="header">
+                                <h1>Emby - ${customTheme.Name}</h1>
+                            </div>
+                            <div class="content">
+                                <h2>这是预览窗口</h2>
+                                <p>您的自定义主题效果预览</p>
+                            </div>
+                        </div>
+                    </body>
+                    </html>
+                `);
+            }
+        }
+
+        // 应用主题
+        async function applyTheme() {
+            if (!customTheme) return;
+            
+            if (confirm(`确定要应用主题 "${customTheme.Name}" 吗？`)) {
+                try {
+                    // 更新配置
+                    const updatedConfig = {
+                        ...currentConfig,
+                        ActiveThemeId: customTheme.Id
+                    };
+                    
+                    // 这里应该调用API应用主题
+                    alert(`主题 "${customTheme.Name}" 已应用成功！`);
+                } catch (error) {
+                    console.error('应用主题失败:', error);
+                    alert('应用失败: ' + error.message);
+                }
+            }
+        }
+    </script>
+</body>
+</html>

@@ -1,0 +1,892 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Emby 美化插件 - 主题选择</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+        }
+
+        .header {
+            background: rgba(255, 255, 255, 0.95);
+            padding: 30px;
+            border-radius: 15px;
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
+            margin-bottom: 30px;
+            text-align: center;
+        }
+
+        .header h1 {
+            color: #333;
+            font-size: 2.5em;
+            margin-bottom: 10px;
+            font-weight: 300;
+        }
+
+        .header p {
+            color: #666;
+            font-size: 1.1em;
+        }
+
+        .filter-bar {
+            background: rgba(255, 255, 255, 0.95);
+            padding: 25px;
+            border-radius: 15px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+            margin-bottom: 30px;
+            display: flex;
+            flex-wrap: wrap;
+            gap: 20px;
+            align-items: center;
+            justify-content: space-between;
+        }
+
+        .filter-group {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+
+        .filter-group label {
+            font-weight: 600;
+            color: #555;
+        }
+
+        .filter-control {
+            padding: 10px 15px;
+            border: 2px solid #e1e5e9;
+            border-radius: 8px;
+            font-size: 14px;
+            background: white;
+            transition: all 0.3s ease;
+        }
+
+        .filter-control:focus {
+            outline: none;
+            border-color: #4facfe;
+            box-shadow: 0 0 0 3px rgba(79, 172, 254, 0.1);
+        }
+
+        .search-box {
+            flex: 1;
+            min-width: 250px;
+        }
+
+        .theme-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(350px, 1fr));
+            gap: 25px;
+            margin-bottom: 30px;
+        }
+
+        .theme-card {
+            background: rgba(255, 255, 255, 0.95);
+            border-radius: 15px;
+            overflow: hidden;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+            transition: all 0.3s ease;
+            cursor: pointer;
+            position: relative;
+        }
+
+        .theme-card:hover {
+            transform: translateY(-10px);
+            box-shadow: 0 20px 50px rgba(0, 0, 0, 0.15);
+        }
+
+        .theme-card.active {
+            border: 3px solid #4facfe;
+            box-shadow: 0 20px 50px rgba(79, 172, 254, 0.3);
+        }
+
+        .theme-card.active::before {
+            content: '✓';
+            position: absolute;
+            top: 15px;
+            right: 15px;
+            background: #4facfe;
+            color: white;
+            width: 30px;
+            height: 30px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+            z-index: 10;
+        }
+
+        .theme-preview {
+            height: 200px;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .preview-mockup {
+            width: 100%;
+            height: 100%;
+            position: relative;
+            transform: scale(0.7);
+            transform-origin: top left;
+        }
+
+        .mockup-header {
+            height: 50px;
+            background: var(--theme-primary, #4facfe);
+            display: flex;
+            align-items: center;
+            padding: 0 20px;
+            color: white;
+            font-weight: 600;
+        }
+
+        .mockup-content {
+            background: var(--theme-background, #f8f9fa);
+            height: calc(100% - 50px);
+            padding: 15px;
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+
+        .mockup-card {
+            background: var(--theme-surface, white);
+            height: 40px;
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            padding: 0 15px;
+            color: var(--theme-text, #333);
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+        }
+
+        .theme-info {
+            padding: 25px;
+        }
+
+        .theme-title {
+            font-size: 1.4em;
+            font-weight: 600;
+            color: #333;
+            margin-bottom: 8px;
+        }
+
+        .theme-description {
+            color: #666;
+            font-size: 0.95em;
+            line-height: 1.5;
+            margin-bottom: 15px;
+        }
+
+        .theme-meta {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+            font-size: 0.85em;
+            color: #888;
+        }
+
+        .theme-author {
+            font-weight: 500;
+        }
+
+        .theme-version {
+            background: #f0f0f0;
+            padding: 4px 8px;
+            border-radius: 4px;
+        }
+
+        .color-palette {
+            display: flex;
+            gap: 8px;
+            margin-bottom: 20px;
+        }
+
+        .color-swatch {
+            width: 25px;
+            height: 25px;
+            border-radius: 50%;
+            border: 2px solid white;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+        }
+
+        .theme-actions {
+            display: flex;
+            gap: 10px;
+        }
+
+        .btn {
+            padding: 10px 20px;
+            border: none;
+            border-radius: 8px;
+            font-size: 14px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            text-decoration: none;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);
+            color: white;
+            flex: 1;
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(79, 172, 254, 0.3);
+        }
+
+        .btn-secondary {
+            background: #f8f9fa;
+            color: #666;
+            border: 2px solid #e1e5e9;
+        }
+
+        .btn-secondary:hover {
+            background: #e9ecef;
+            border-color: #adb5bd;
+        }
+
+        .floating-panel {
+            position: fixed;
+            bottom: 30px;
+            right: 30px;
+            background: rgba(255, 255, 255, 0.95);
+            padding: 25px;
+            border-radius: 15px;
+            box-shadow: 0 20px 50px rgba(0, 0, 0, 0.15);
+            backdrop-filter: blur(10px);
+            min-width: 300px;
+            z-index: 1000;
+        }
+
+        .panel-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+
+        .panel-title {
+            font-size: 1.2em;
+            font-weight: 600;
+            color: #333;
+        }
+
+        .close-panel {
+            background: none;
+            border: none;
+            font-size: 1.5em;
+            cursor: pointer;
+            color: #666;
+            padding: 0;
+            width: 30px;
+            height: 30px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 50%;
+            transition: all 0.3s ease;
+        }
+
+        .close-panel:hover {
+            background: #f0f0f0;
+            color: #333;
+        }
+
+        .selected-theme-info {
+            margin-bottom: 20px;
+        }
+
+        .selected-theme-name {
+            font-weight: 600;
+            color: #333;
+            margin-bottom: 5px;
+        }
+
+        .selected-theme-description {
+            color: #666;
+            font-size: 0.9em;
+        }
+
+        .panel-actions {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+
+        .status-message {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            padding: 15px 20px;
+            border-radius: 8px;
+            color: white;
+            font-weight: 500;
+            z-index: 2000;
+            transform: translateX(100%);
+            transition: transform 0.3s ease;
+        }
+
+        .status-message.show {
+            transform: translateX(0);
+        }
+
+        .status-success {
+            background: #28a745;
+        }
+
+        .status-error {
+            background: #dc3545;
+        }
+
+        .status-info {
+            background: #17a2b8;
+        }
+
+        .loading-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.5);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 3000;
+            opacity: 0;
+            visibility: hidden;
+            transition: all 0.3s ease;
+        }
+
+        .loading-overlay.show {
+            opacity: 1;
+            visibility: visible;
+        }
+
+        .loading-spinner {
+            width: 60px;
+            height: 60px;
+            border: 4px solid #f3f3f3;
+            border-top: 4px solid #4facfe;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        .empty-state {
+            text-align: center;
+            padding: 60px 20px;
+            color: #666;
+        }
+
+        .empty-state h3 {
+            font-size: 1.5em;
+            margin-bottom: 10px;
+            color: #333;
+        }
+
+        .empty-state p {
+            font-size: 1.1em;
+            line-height: 1.5;
+        }
+
+        @media (max-width: 768px) {
+            .container {
+                padding: 10px;
+            }
+
+            .header {
+                padding: 20px;
+            }
+
+            .header h1 {
+                font-size: 2em;
+            }
+
+            .filter-bar {
+                flex-direction: column;
+                align-items: stretch;
+            }
+
+            .filter-group {
+                justify-content: space-between;
+            }
+
+            .theme-grid {
+                grid-template-columns: 1fr;
+                gap: 20px;
+            }
+
+            .floating-panel {
+                position: static;
+                margin-top: 30px;
+                border-radius: 15px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>🎨 主题选择</h1>
+            <p>选择您喜欢的主题，让 Emby 界面焕然一新</p>
+        </div>
+
+        <div class="filter-bar">
+            <div class="filter-group">
+                <label for="searchThemes">搜索主题:</label>
+                <input type="text" id="searchThemes" class="filter-control search-box" placeholder="输入主题名称或作者...">
+            </div>
+            
+            <div class="filter-group">
+                <label for="sortBy">排序方式:</label>
+                <select id="sortBy" class="filter-control">
+                    <option value="name">按名称</option>
+                    <option value="author">按作者</option>
+                    <option value="version">按版本</option>
+                </select>
+            </div>
+            
+            <div class="filter-group">
+                <label for="filterBy">筛选:</label>
+                <select id="filterBy" class="filter-control">
+                    <option value="all">所有主题</option>
+                    <option value="light">浅色主题</option>
+                    <option value="dark">深色主题</option>
+                    <option value="colorful">彩色主题</option>
+                </select>
+            </div>
+        </div>
+
+        <div id="themeGrid" class="theme-grid">
+            <!-- 主题卡片将通过 JavaScript 动态生成 -->
+        </div>
+
+        <div id="emptyState" class="empty-state" style="display: none;">
+            <h3>😔 没有找到匹配的主题</h3>
+            <p>尝试调整搜索条件或筛选选项</p>
+        </div>
+    </div>
+
+    <!-- 浮动面板 -->
+    <div id="floatingPanel" class="floating-panel" style="display: none;">
+        <div class="panel-header">
+            <div class="panel-title">已选择主题</div>
+            <button class="close-panel" onclick="hideFloatingPanel()">×</button>
+        </div>
+        
+        <div id="selectedThemeInfo" class="selected-theme-info">
+            <!-- 选中主题信息将动态填充 -->
+        </div>
+        
+        <div class="panel-actions">
+            <button id="applyTheme" class="btn btn-primary">
+                🎨 应用主题
+            </button>
+            <button id="previewTheme" class="btn btn-secondary">
+                👁️ 预览效果
+            </button>
+            <button id="customizeTheme" class="btn btn-secondary">
+                ⚙️ 自定义主题
+            </button>
+        </div>
+    </div>
+
+    <!-- 状态消息 -->
+    <div id="statusMessage" class="status-message"></div>
+
+    <!-- 加载遮罩 -->
+    <div id="loadingOverlay" class="loading-overlay">
+        <div class="loading-spinner"></div>
+    </div>
+
+    <script>
+        // 全局变量
+        let availableThemes = {{AVAILABLE_THEMES}};
+        let activeTheme = {{ACTIVE_THEME}};
+        let currentConfig = {{CURRENT_CONFIG}};
+        let selectedTheme = null;
+        let filteredThemes = [...availableThemes];
+
+        // DOM 元素
+        const elements = {
+            themeGrid: document.getElementById('themeGrid'),
+            searchThemes: document.getElementById('searchThemes'),
+            sortBy: document.getElementById('sortBy'),
+            filterBy: document.getElementById('filterBy'),
+            floatingPanel: document.getElementById('floatingPanel'),
+            selectedThemeInfo: document.getElementById('selectedThemeInfo'),
+            applyTheme: document.getElementById('applyTheme'),
+            previewTheme: document.getElementById('previewTheme'),
+            customizeTheme: document.getElementById('customizeTheme'),
+            statusMessage: document.getElementById('statusMessage'),
+            loadingOverlay: document.getElementById('loadingOverlay'),
+            emptyState: document.getElementById('emptyState')
+        };
+
+        // 初始化页面
+        document.addEventListener('DOMContentLoaded', function() {
+            initializePage();
+            bindEvents();
+        });
+
+        // 初始化页面
+        function initializePage() {
+            try {
+                renderThemeGrid();
+                
+                // 如果有活动主题，自动选中
+                if (activeTheme) {
+                    selectTheme(activeTheme.Id, false);
+                }
+                
+                showStatusMessage('页面加载完成', 'success');
+            } catch (error) {
+                console.error('初始化页面失败:', error);
+                showStatusMessage('初始化页面失败: ' + error.message, 'error');
+            }
+        }
+
+        // 渲染主题网格
+        function renderThemeGrid() {
+            elements.themeGrid.innerHTML = '';
+            
+            if (filteredThemes.length === 0) {
+                elements.emptyState.style.display = 'block';
+                return;
+            }
+            
+            elements.emptyState.style.display = 'none';
+            
+            filteredThemes.forEach(theme => {
+                const themeCard = createThemeCard(theme);
+                elements.themeGrid.appendChild(themeCard);
+            });
+        }
+
+        // 创建主题卡片
+        function createThemeCard(theme) {
+            const card = document.createElement('div');
+            card.className = 'theme-card';
+            card.dataset.themeId = theme.Id;
+            
+            // 检查是否为活动主题
+            if (activeTheme && theme.Id === activeTheme.Id) {
+                card.classList.add('active');
+            }
+            
+            const colors = theme.Colors || {};
+            const primary = colors.Primary || '#4facfe';
+            const secondary = colors.Secondary || '#00f2fe';
+            const background = colors.Background || '#f8f9fa';
+            const surface = colors.Surface || '#ffffff';
+            const text = colors.Text || '#333333';
+            
+            card.innerHTML = `
+                <div class="theme-preview">
+                    <div class="preview-mockup">
+                        <div class="mockup-header" style="background: ${primary};">
+                            Emby
+                        </div>
+                        <div class="mockup-content" style="background: ${background};">
+                            <div class="mockup-card" style="background: ${surface}; color: ${text};">
+                                电影库
+                            </div>
+                            <div class="mockup-card" style="background: ${surface}; color: ${text};">
+                                电视剧库
+                            </div>
+                            <div class="mockup-card" style="background: ${surface}; color: ${text};">
+                                音乐库
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="theme-info">
+                    <div class="theme-title">${theme.Name}</div>
+                    <div class="theme-description">${theme.Description || '暂无描述'}</div>
+                    
+                    <div class="theme-meta">
+                        <span class="theme-author">作者: ${theme.Author || '未知'}</span>
+                        <span class="theme-version">v${theme.Version || '1.0.0'}</span>
+                    </div>
+                    
+                    <div class="color-palette">
+                        <div class="color-swatch" style="background: ${primary};" title="主色"></div>
+                        <div class="color-swatch" style="background: ${secondary};" title="辅色"></div>
+                        <div class="color-swatch" style="background: ${background};" title="背景色"></div>
+                        <div class="color-swatch" style="background: ${surface};" title="表面色"></div>
+                        <div class="color-swatch" style="background: ${text};" title="文本色"></div>
+                    </div>
+                    
+                    <div class="theme-actions">
+                        <button class="btn btn-primary" onclick="selectTheme('${theme.Id}')">
+                            选择主题
+                        </button>
+                        <button class="btn btn-secondary" onclick="previewTheme('${theme.Id}')">
+                            预览
+                        </button>
+                    </div>
+                </div>
+            `;
+            
+            // 设置CSS变量用于预览
+            card.style.setProperty('--theme-primary', primary);
+            card.style.setProperty('--theme-secondary', secondary);
+            card.style.setProperty('--theme-background', background);
+            card.style.setProperty('--theme-surface', surface);
+            card.style.setProperty('--theme-text', text);
+            
+            return card;
+        }
+
+        // 选择主题
+        function selectTheme(themeId, showPanel = true) {
+            const theme = availableThemes.find(t => t.Id === themeId);
+            if (!theme) return;
+            
+            selectedTheme = theme;
+            
+            // 更新卡片状态
+            document.querySelectorAll('.theme-card').forEach(card => {
+                card.classList.remove('active');
+            });
+            
+            const selectedCard = document.querySelector(`[data-theme-id="${themeId}"]`);
+            if (selectedCard) {
+                selectedCard.classList.add('active');
+            }
+            
+            // 显示浮动面板
+            if (showPanel) {
+                showFloatingPanel(theme);
+            }
+            
+            showStatusMessage(`已选择主题: ${theme.Name}`, 'info');
+        }
+
+        // 显示浮动面板
+        function showFloatingPanel(theme) {
+            elements.selectedThemeInfo.innerHTML = `
+                <div class="selected-theme-name">${theme.Name}</div>
+                <div class="selected-theme-description">${theme.Description || '暂无描述'}</div>
+            `;
+            
+            elements.floatingPanel.style.display = 'block';
+        }
+
+        // 隐藏浮动面板
+        function hideFloatingPanel() {
+            elements.floatingPanel.style.display = 'none';
+        }
+
+        // 预览主题
+        async function previewTheme(themeId) {
+            try {
+                showLoading(true);
+                
+                const response = await fetch(`/emby-beautify/theme-preview/${themeId}`);
+                const previewData = await response.json();
+                
+                // 打开预览窗口
+                const previewWindow = window.open('/emby-beautify/settings/preview', '_blank', 
+                    'width=1200,height=800,scrollbars=yes,resizable=yes');
+                
+                if (previewWindow) {
+                    // 传递预览数据到新窗口
+                    previewWindow.previewData = previewData;
+                    showStatusMessage('预览窗口已打开', 'success');
+                } else {
+                    throw new Error('无法打开预览窗口，请检查浏览器弹窗设置');
+                }
+            } catch (error) {
+                console.error('预览主题失败:', error);
+                showStatusMessage('预览失败: ' + error.message, 'error');
+            } finally {
+                showLoading(false);
+            }
+        }
+
+        // 应用主题
+        async function applyTheme() {
+            if (!selectedTheme) {
+                showStatusMessage('请先选择一个主题', 'error');
+                return;
+            }
+            
+            try {
+                showLoading(true);
+                
+                // 更新配置
+                const updatedConfig = {
+                    ...currentConfig,
+                    ActiveThemeId: selectedTheme.Id
+                };
+                
+                const response = await fetch('/emby-beautify/configuration', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({ Configuration: updatedConfig })
+                });
+                
+                const result = await response.json();
+                
+                if (result.Success) {
+                    activeTheme = selectedTheme;
+                    currentConfig = result.Configuration;
+                    hideFloatingPanel();
+                    showStatusMessage(`主题 "${selectedTheme.Name}" 已成功应用！`, 'success');
+                } else {
+                    throw new Error(result.Message || '应用主题失败');
+                }
+            } catch (error) {
+                console.error('应用主题失败:', error);
+                showStatusMessage('应用失败: ' + error.message, 'error');
+            } finally {
+                showLoading(false);
+            }
+        }
+
+        // 自定义主题
+        function customizeTheme() {
+            if (!selectedTheme) {
+                showStatusMessage('请先选择一个主题', 'error');
+                return;
+            }
+            
+            // 打开主题自定义页面
+            window.open('/emby-beautify/theme-customizer', '_blank');
+        }
+
+        // 搜索和筛选
+        function filterThemes() {
+            const searchTerm = elements.searchThemes.value.toLowerCase();
+            const sortBy = elements.sortBy.value;
+            const filterBy = elements.filterBy.value;
+            
+            // 搜索过滤
+            let filtered = availableThemes.filter(theme => {
+                const matchesSearch = !searchTerm || 
+                    theme.Name.toLowerCase().includes(searchTerm) ||
+                    (theme.Author && theme.Author.toLowerCase().includes(searchTerm)) ||
+                    (theme.Description && theme.Description.toLowerCase().includes(searchTerm));
+                
+                // 类型过滤
+                let matchesFilter = true;
+                if (filterBy !== 'all') {
+                    const colors = theme.Colors || {};
+                    const background = colors.Background || '#ffffff';
+                    const brightness = getBrightness(background);
+                    
+                    switch (filterBy) {
+                        case 'light':
+                            matchesFilter = brightness > 128;
+                            break;
+                        case 'dark':
+                            matchesFilter = brightness <= 128;
+                            break;
+                        case 'colorful':
+                            matchesFilter = colors.Primary && colors.Secondary && 
+                                           colors.Primary !== colors.Secondary;
+                            break;
+                    }
+                }
+                
+                return matchesSearch && matchesFilter;
+            });
+            
+            // 排序
+            filtered.sort((a, b) => {
+                switch (sortBy) {
+                    case 'name':
+                        return a.Name.localeCompare(b.Name);
+                    case 'author':
+                        return (a.Author || '').localeCompare(b.Author || '');
+                    case 'version':
+                        return (b.Version || '1.0.0').localeCompare(a.Version || '1.0.0');
+                    default:
+                        return 0;
+                }
+            });
+            
+            filteredThemes = filtered;
+            renderThemeGrid();
+        }
+
+        // 获取颜色亮度
+        function getBrightness(color) {
+            const hex = color.replace('#', '');
+            const r = parseInt(hex.substr(0, 2), 16);
+            const g = parseInt(hex.substr(2, 2), 16);
+            const b = parseInt(hex.substr(4, 2), 16);
+            return (r * 299 + g * 587 + b * 114) / 1000;
+        }
+
+        // 绑定事件
+        function bindEvents() {
+            // 搜索和筛选事件
+            elements.searchThemes.addEventListener('input', filterThemes);
+            elements.sortBy.addEventListener('change', filterThemes);
+            elements.filterBy.addEventListener('change', filterThemes);
+            
+            // 浮动面板按钮事件
+            elements.applyTheme.addEventListener('click', applyTheme);
+            elements.previewTheme.addEventListener('click', () => {
+                if (selectedTheme) {
+                    previewTheme(selectedTheme.Id);
+                }
+            });
+            elements.customizeTheme.addEventListener('click', customizeTheme);
+        }
+
+        // 显示状态消息
+        function showStatusMessage(message, type) {
+            elements.statusMessage.textContent = message;
+            elements.statusMessage.className = `status-message status-${type} show`;
+            
+            setTimeout(() => {
+                elements.statusMessage.classList.remove('show');
+            }, 3000);
+        }
+
+        // 显示/隐藏加载状态
+        function showLoading(show) {
+            if (show) {
+                elements.loadingOverlay.classList.add('show');
+            } else {
+                elements.loadingOverlay.classList.remove('show');
+            }
+        }
+    </script>
+</body>
+</html>
