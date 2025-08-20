@@ -1,338 +1,229 @@
+using MediaBrowser.Common.Configuration;
+using MediaBrowser.Common.Plugins;
+using EmbyBeautifyPlugin.Services;
 using EmbyBeautifyPlugin.Interfaces;
 using EmbyBeautifyPlugin.Models;
-using MediaBrowser.Controller.Plugins;
-using MediaBrowser.Controller.Configuration;
-using MediaBrowser.Model.Logging;
 using System;
-using System.Threading.Tasks;
-using System.Threading;
+using System.Collections.Generic;
+using System.IO;
+using MediaBrowser.Model.Serialization;
+using MediaBrowser.Model.Plugins;
+using Microsoft.Extensions.Logging;
+using EmbyBeautifyPlugin.Extensions;
 
 namespace EmbyBeautifyPlugin
 {
     /// <summary>
-    /// Main plugin entry point for Emby Beautify Plugin
-    /// Implements IServerEntryPoint for Emby plugin framework integration
+    /// Emby美化插件主类
+    /// 提供主题定制、样式注入、动画效果等功能
     /// </summary>
-    public class Plugin : IEmbyBeautifyPlugin, IServerEntryPoint
+    public class Plugin : BasePlugin<BeautifyConfig>, IHasWebPages
     {
-        private readonly ILogger _logger;
-        private readonly IServerConfigurationManager _serverConfigurationManager;
-        private IThemeManager _themeManager;
-        private IStyleInjector _styleInjector;
-        private IConfigurationManager _configurationManager;
-        private bool _isInitialized = false;
-        private readonly object _initializationLock = new object();
+        private readonly IThemeManager _themeManager;
+        private readonly IStyleInjector _styleInjector;
+        private readonly IAnimationController _animationController;
+        private readonly IInteractionEnhancer _interactionEnhancer;
+        private readonly IConfigurationManager _configManager;
+        private readonly Microsoft.Extensions.Logging.ILogger _logger;
+        private readonly EmbyLoggerProvider _loggerProvider;
 
-        public Plugin(ILogManager logManager, IServerConfigurationManager serverConfigurationManager)
+        /// <summary>
+        /// 插件实例（单例）
+        /// </summary>
+        public static Plugin Instance { get; private set; }
+
+        /// <summary>
+        /// 插件名称
+        /// </summary>
+        public override string Name => "EmbyBeautifyPlugin";
+
+        /// <summary>
+        /// 插件描述
+        /// </summary>
+        public override string Description => "一个功能强大的Emby主题美化插件，提供丰富的界面定制选项";
+
+        /// <summary>
+        /// 插件ID
+        /// </summary>
+        public override Guid Id => Guid.Parse("12345678-1234-5678-9012-123456789012");
+
+        /// <summary>
+        /// 插件版本
+        /// </summary>
+        public override string Version => "1.0.0";
+
+        /// <summary>
+        /// 构造函数
+        /// </summary>
+        public Plugin(IApplicationPaths applicationPaths, IXmlSerializer xmlSerializer)
+            : base(applicationPaths, xmlSerializer)
         {
-            _logger = logManager?.GetLogger(GetType().Name) ?? throw new ArgumentNullException(nameof(logManager));
-            _serverConfigurationManager = serverConfigurationManager ?? throw new ArgumentNullException(nameof(serverConfigurationManager));
-        }
-
-        /// <summary>
-        /// Plugin name
-        /// </summary>
-        public string Name => "Emby Beautify Plugin";
-
-        /// <summary>
-        /// Plugin description
-        /// </summary>
-        public string Description => "A plugin to beautify Emby Server interface with custom themes and enhanced UI";
-
-        /// <summary>
-        /// Run the plugin - called by Emby Server on startup
-        /// </summary>
-        public void Run()
-        {
+            Instance = this;
+            
+            // 创建日志提供程序
+            _loggerProvider = new EmbyLoggerProvider();
+            _logger = _loggerProvider.CreateLogger<Plugin>();
+            
             try
             {
-                _logger.Info("Starting Emby Beautify Plugin v1.0.0");
-                RunAsync().GetAwaiter().GetResult();
-                _logger.Info("Emby Beautify Plugin started successfully");
-            }
-            catch (Exception ex)
-            {
-                _logger.ErrorException("Critical error starting Emby Beautify Plugin", ex);
-                throw;
-            }
-        }
-
-        /// <summary>
-        /// Run the plugin asynchronously - internal implementation
-        /// </summary>
-        private async Task RunAsync()
-        {
-            await InitializeAsync();
-        }
-
-        /// <summary>
-        /// Initialize the plugin asynchronously
-        /// </summary>
-        public async Task InitializeAsync()
-        {
-            lock (_initializationLock)
-            {
-                if (_isInitialized)
-                {
-                    _logger.Debug("Plugin already initialized, skipping");
-                    return;
-                }
-            }
-
-            try
-            {
-                _logger.Debug("Initializing Emby Beautify Plugin components");
-
-                // Initialize dependency injection container and services
-                await InitializeServicesAsync();
-
-                // Load and validate configuration
-                var config = await _configurationManager.LoadConfigurationAsync();
-                _logger.Debug("Configuration loaded successfully. Active theme: {0}", config.ActiveThemeId);
-
-                // Initialize and apply active theme
-                await InitializeThemeSystemAsync(config);
-
-                // Update global styles
-                await _styleInjector.UpdateGlobalStylesAsync();
-
-                lock (_initializationLock)
-                {
-                    _isInitialized = true;
-                }
-
-                _logger.Info("Plugin initialization completed successfully");
-            }
-            catch (Exception ex)
-            {
-                _logger.ErrorException("Error during plugin initialization", ex);
+                _logger.LogInformation("正在初始化EmbyBeautifyPlugin...");
                 
-                // Attempt graceful degradation
-                await HandleInitializationFailureAsync(ex);
-                throw;
-            }
-        }
-
-        /// <summary>
-        /// Initialize plugin services and dependencies
-        /// </summary>
-        private async Task InitializeServicesAsync()
-        {
-            try
-            {
-                _logger.Debug("Initializing plugin services");
-
-                // TODO: Initialize actual implementations when they are created
-                // For now, we'll use placeholder implementations
+                // 手动实例化核心服务（避免依赖注入问题）
+                _configManager = new ConfigurationManager(this, _logger);
+                _themeManager = new ThemeManager(_configManager, _logger);
+                _styleInjector = new StyleInjector(_themeManager, _logger);
+                _animationController = new AnimationController(_configManager, _logger);
+                _interactionEnhancer = new InteractionEnhancer(_configManager, _logger);
                 
-                // This will be replaced with actual dependency injection container
-                // _configurationManager = serviceProvider.GetService<IConfigurationManager>();
-                // _themeManager = serviceProvider.GetService<IThemeManager>();
-                // _styleInjector = serviceProvider.GetService<IStyleInjector>();
-
-                _logger.Debug("Plugin services initialized successfully");
-                await Task.CompletedTask;
+                _logger.LogInformation("EmbyBeautifyPlugin核心服务初始化完成");
             }
             catch (Exception ex)
             {
-                _logger.ErrorException("Failed to initialize plugin services", ex);
+                _logger?.LogError(ex, "EmbyBeautifyPlugin初始化失败");
                 throw;
             }
         }
 
         /// <summary>
-        /// Initialize theme system and apply active theme
+        /// 插件启用时调用
         /// </summary>
-        private async Task InitializeThemeSystemAsync(BeautifyConfig config)
+        public override void OnEnable()
         {
             try
             {
-                if (_themeManager == null)
-                {
-                    _logger.Warn("Theme manager not initialized, skipping theme application");
-                    return;
-                }
-
-                _logger.Debug("Initializing theme system");
-
-                // Get available themes
-                var availableThemes = await _themeManager.GetAvailableThemesAsync();
-                _logger.Debug("Found {0} available themes", availableThemes.Count);
-
-                // Apply active theme
-                var activeTheme = await _themeManager.GetActiveThemeAsync();
-                if (activeTheme != null)
-                {
-                    _logger.Debug("Applying active theme: {0}", activeTheme.Name);
-                    var css = await _themeManager.GenerateThemeCssAsync(activeTheme);
-                    await _styleInjector.InjectStylesAsync(css);
-                    _logger.Info("Active theme '{0}' applied successfully", activeTheme.Name);
-                }
-                else
-                {
-                    _logger.Warn("No active theme found, using default styling");
-                }
-            }
-            catch (Exception ex)
-            {
-                _logger.ErrorException("Error initializing theme system", ex);
-                throw;
-            }
-        }
-
-        /// <summary>
-        /// Handle initialization failure with graceful degradation
-        /// </summary>
-        private async Task HandleInitializationFailureAsync(Exception ex)
-        {
-            try
-            {
-                _logger.Warn("Attempting graceful degradation due to initialization failure");
+                _logger.LogInformation("正在启用EmbyBeautifyPlugin...");
                 
-                // Try to apply minimal default styling
-                if (_styleInjector != null)
-                {
-                    var fallbackCss = GetFallbackCss();
-                    await _styleInjector.InjectStylesAsync(fallbackCss);
-                    _logger.Info("Fallback styling applied");
-                }
-
-                _logger.Warn("Plugin running in degraded mode due to initialization error: {0}", ex.Message);
-            }
-            catch (Exception fallbackEx)
-            {
-                _logger.ErrorException("Failed to apply graceful degradation", fallbackEx);
-            }
-        }
-
-        /// <summary>
-        /// Get minimal fallback CSS for graceful degradation
-        /// </summary>
-        private string GetFallbackCss()
-        {
-            return @"
-                /* Emby Beautify Plugin - Fallback Styles */
-                .emby-header {
-                    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-                }
-                .card {
-                    border-radius: 8px;
-                    box-shadow: 0 2px 8px rgba(0,0,0,0.1);
-                    transition: transform 0.2s ease;
-                }
-                .card:hover {
-                    transform: translateY(-2px);
-                }
-            ";
-        }
-
-        /// <summary>
-        /// Get the current plugin configuration
-        /// </summary>
-        public async Task<BeautifyConfig> GetConfigurationAsync()
-        {
-            try
-            {
-                if (_configurationManager == null)
-                {
-                    _logger.Warn("Configuration manager not initialized, returning default configuration");
-                    return new BeautifyConfig();
-                }
-
-                return await _configurationManager.LoadConfigurationAsync();
+                // 初始化主题管理器
+                _themeManager?.InitializeAsync().GetAwaiter().GetResult();
+                
+                // 启用样式注入
+                _styleInjector?.Enable();
+                
+                // 启用动画控制器
+                _animationController?.Enable();
+                
+                // 启用交互增强器
+                _interactionEnhancer?.Enable();
+                
+                _logger.LogInformation("EmbyBeautifyPlugin启用成功");
             }
             catch (Exception ex)
             {
-                _logger.ErrorException("Error getting configuration", ex);
-                return new BeautifyConfig(); // Return default configuration on error
-            }
-        }
-
-        /// <summary>
-        /// Update the plugin configuration
-        /// </summary>
-        public async Task UpdateConfigurationAsync(BeautifyConfig config)
-        {
-            try
-            {
-                if (config == null)
-                    throw new ArgumentNullException(nameof(config));
-
-                if (_configurationManager == null)
-                {
-                    _logger.Error("Configuration manager not initialized, cannot update configuration");
-                    throw new InvalidOperationException("Plugin not properly initialized");
-                }
-
-                _logger.Debug("Updating plugin configuration");
-
-                // Validate configuration
-                var isValid = await _configurationManager.ValidateConfigurationAsync(config);
-                if (!isValid)
-                {
-                    _logger.Error("Invalid configuration provided");
-                    throw new ArgumentException("Invalid configuration", nameof(config));
-                }
-
-                // Save configuration
-                await _configurationManager.SaveConfigurationAsync(config);
-                _logger.Debug("Configuration saved successfully");
-
-                // Apply theme changes if theme ID changed
-                if (_themeManager != null && _styleInjector != null)
-                {
-                    var currentTheme = await _themeManager.GetActiveThemeAsync();
-                    if (currentTheme?.Id != config.ActiveThemeId)
-                    {
-                        _logger.Debug("Theme changed from '{0}' to '{1}', applying new theme", 
-                            currentTheme?.Id ?? "none", config.ActiveThemeId);
-
-                        await _themeManager.SetActiveThemeAsync(config.ActiveThemeId);
-                        var newTheme = await _themeManager.GetActiveThemeAsync();
-                        
-                        if (newTheme != null)
-                        {
-                            var css = await _themeManager.GenerateThemeCssAsync(newTheme);
-                            await _styleInjector.InjectStylesAsync(css);
-                            _logger.Info("Theme changed to '{0}' successfully", newTheme.Name);
-                        }
-                    }
-                }
-
-                _logger.Info("Configuration updated successfully");
-            }
-            catch (Exception ex)
-            {
-                _logger.ErrorException("Error updating configuration", ex);
+                _logger.LogError(ex, "EmbyBeautifyPlugin启用失败");
                 throw;
             }
         }
 
         /// <summary>
-        /// Dispose resources - called by Emby Server on shutdown
+        /// 插件禁用时调用
         /// </summary>
-        public void Dispose()
+        public override void OnDisable()
         {
             try
             {
-                _logger.Debug("Disposing Emby Beautify Plugin resources");
-
-                // Dispose managed resources
-                _themeManager = null;
-                _styleInjector = null;
-                _configurationManager = null;
-
-                lock (_initializationLock)
-                {
-                    _isInitialized = false;
-                }
-
-                _logger.Info("Emby Beautify Plugin disposed successfully");
+                _logger.LogInformation("正在禁用EmbyBeautifyPlugin...");
+                
+                // 禁用交互增强器
+                _interactionEnhancer?.Disable();
+                
+                // 禁用动画控制器
+                _animationController?.Disable();
+                
+                // 禁用样式注入
+                _styleInjector?.Disable();
+                
+                _logger.LogInformation("EmbyBeautifyPlugin禁用成功");
             }
             catch (Exception ex)
             {
-                _logger.ErrorException("Error disposing plugin resources", ex);
+                _logger.LogError(ex, "EmbyBeautifyPlugin禁用失败");
             }
+        }
+
+        /// <summary>
+        /// 获取Web页面
+        /// </summary>
+        public IEnumerable<PluginPageInfo> GetPages()
+        {
+            return new[]
+            {
+                new PluginPageInfo
+                {
+                    Name = "EmbyBeautifyPlugin",
+                    EmbeddedResourcePath = GetType().Namespace + ".Views.SettingsPage.html",
+                    MenuSection = "server",
+                    MenuIcon = "palette"
+                },
+                new PluginPageInfo
+                {
+                    Name = "ThemeSelection",
+                    EmbeddedResourcePath = GetType().Namespace + ".Views.ThemeSelection.html"
+                },
+                new PluginPageInfo
+                {
+                    Name = "ThemeCustomizer",
+                    EmbeddedResourcePath = GetType().Namespace + ".Views.ThemeCustomizer.html"
+                },
+                new PluginPageInfo
+                {
+                    Name = "PreviewPage",
+                    EmbeddedResourcePath = GetType().Namespace + ".Views.PreviewPage.html"
+                }
+            };
+        }
+
+        /// <summary>
+        /// 获取主题管理器
+        /// </summary>
+        public IThemeManager GetThemeManager() => _themeManager;
+
+        /// <summary>
+        /// 获取样式注入器
+        /// </summary>
+        public IStyleInjector GetStyleInjector() => _styleInjector;
+
+        /// <summary>
+        /// 获取动画控制器
+        /// </summary>
+        public IAnimationController GetAnimationController() => _animationController;
+
+        /// <summary>
+        /// 获取交互增强器
+        /// </summary>
+        public IInteractionEnhancer GetInteractionEnhancer() => _interactionEnhancer;
+
+        /// <summary>
+        /// 获取配置管理器
+        /// </summary>
+        public IConfigurationManager GetConfigurationManager() => _configManager;
+
+        /// <summary>
+        /// 释放资源
+        /// </summary>
+        protected override void Dispose(bool disposing)
+        {
+            if (disposing)
+            {
+                try
+                {
+                    _logger?.LogInformation("正在释放EmbyBeautifyPlugin资源...");
+                    
+                    _interactionEnhancer?.Dispose();
+                    _animationController?.Dispose();
+                    _styleInjector?.Dispose();
+                    _themeManager?.Dispose();
+                    _configManager?.Dispose();
+                    _loggerProvider?.Dispose();
+                    
+                    _logger?.LogInformation("EmbyBeautifyPlugin资源释放完成");
+                }
+                catch (Exception ex)
+                {
+                    _logger?.LogError(ex, "EmbyBeautifyPlugin资源释放失败");
+                }
+            }
+            
+            base.Dispose(disposing);
         }
     }
 }
