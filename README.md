@@ -1,257 +1,138 @@
-# Emby Beautify Plugin
+# EmbyBeautifyPlugin
 
-[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
-[![.NET](https://img.shields.io/badge/.NET-6.0-blue.svg)](https://dotnet.microsoft.com/download/dotnet/6.0)
-[![Emby](https://img.shields.io/badge/Emby-4.7.0+-green.svg)](https://emby.media/)
+一个功能强大的Emby主题美化插件，提供丰富的界面定制选项和现代化的用户体验。
 
-A powerful Emby Server plugin that enhances the web interface with custom themes, modern UI improvements, and responsive design.
+## 功能特性
 
-## ✨ Features
+### 🎨 主题定制
+- **多主题支持**: 内置多种精美主题，支持深色/浅色模式
+- **颜色定制**: 完全自定义主色调、背景色、文字色等
+- **布局优化**: 响应式设计，适配各种屏幕尺寸
+- **字体美化**: 支持自定义字体系列和大小
 
-### 🎨 Theme System
-- **Multiple Built-in Themes**: Light, Dark, and Modern themes
-- **Full Customization**: Colors, fonts, layouts, and animations
-- **Real-time Preview**: See changes instantly as you customize
-- **Import/Export**: Share themes with the community
+### ✨ 动画效果
+- **流畅过渡**: 页面切换和元素变化的平滑动画
+- **交互反馈**: 按钮点击、悬停等交互的视觉反馈
+- **性能优化**: GPU加速的CSS动画，确保流畅体验
 
-### 📱 Responsive Design
-- **Mobile Optimized**: Perfect experience on phones and tablets
-- **Adaptive Layouts**: Automatically adjusts to screen size
-- **Touch Friendly**: Large buttons and intuitive gestures
+### 📱 响应式设计
+- **移动端优化**: 完美适配手机和平板设备
+- **断点管理**: 智能响应不同屏幕尺寸
+- **触摸友好**: 优化的触摸交互体验
 
-### ⚡ Performance
-- **Smart Caching**: Intelligent style caching for fast loading
-- **Lazy Loading**: Load styles only when needed
-- **Hardware Acceleration**: Smooth animations with GPU support
-- **Memory Optimization**: Efficient resource management
+### ⚡ 性能优化
+- **样式缓存**: 智能缓存机制，减少重复计算
+- **懒加载**: 按需加载样式资源
+- **内存管理**: 优化的内存使用策略
 
-### 🔧 Advanced Features
-- **CSS Injection**: Custom CSS support for power users
-- **Animation Control**: Configurable transitions and effects
-- **Debug Tools**: Built-in debugging and performance monitoring
-- **Error Recovery**: Graceful fallback mechanisms
+## 安装说明
 
-## 🚀 Quick Start
+### 方法一：手动安装
+1. 下载最新版本的插件包 `EmbyBeautifyPlugin-v1.0.0.zip`
+2. 解压到Emby服务器的插件目录
+3. 重启Emby服务器
+4. 在管理面板中启用插件
 
-### System Requirements
-- **Emby Server**: 4.7.0 - 4.8.0
-- **.NET Runtime**: 6.0 or higher
-- **Browsers**: Chrome, Firefox, Safari, Edge
+### 方法二：通过Emby插件目录
+1. 打开Emby管理面板
+2. 进入插件 > 目录
+3. 搜索"EmbyBeautifyPlugin"
+4. 点击安装并重启服务器
 
-### Installation
+## 使用指南
 
-#### Option 1: Automatic Installation (Recommended)
+### 基础配置
+1. 安装插件后，进入 设置 > 插件 > EmbyBeautifyPlugin
+2. 选择您喜欢的主题
+3. 调整颜色和布局设置
+4. 保存配置并刷新页面
 
-**Windows:**
-```powershell
-# Download the latest release
-Invoke-WebRequest -Uri "https://github.com/zainzzz/emby-beautify-plugin/releases/latest/download/EmbyBeautifyPlugin-v1.0.0.0.zip" -OutFile "EmbyBeautifyPlugin.zip"
+### 高级定制
+- **主题编辑器**: 使用内置编辑器创建自定义主题
+- **CSS注入**: 添加自定义CSS代码
+- **动画控制**: 调整动画速度和效果
+- **响应式设置**: 配置不同设备的显示效果
 
-# Extract and install
-Expand-Archive -Path "EmbyBeautifyPlugin.zip" -DestinationPath "EmbyBeautifyPlugin"
-cd EmbyBeautifyPlugin
-.\install-plugin.ps1
-```
+## 兼容性
 
-**Linux/macOS:**
-```bash
-# Download the latest release
-wget https://github.com/zainzzz/emby-beautify-plugin/releases/latest/download/EmbyBeautifyPlugin-v1.0.0.0.tar.gz
+- **Emby版本**: 4.7.0.0 及以上
+- **浏览器支持**: Chrome 80+, Firefox 75+, Safari 13+, Edge 80+
+- **操作系统**: Windows, Linux, macOS, Docker
 
-# Extract and install
-tar -xzf EmbyBeautifyPlugin-v1.0.0.0.tar.gz
-cd package
-sudo ./install-plugin.sh
-```
+## 开发说明
 
-**Docker:**
-```bash
-# For existing Emby containers
-./deploy-to-existing-emby.sh your-emby-container-name
-```
+### 技术栈
+- **.NET Standard 2.0**: 核心框架
+- **C#**: 主要开发语言
+- **HTML/CSS/JavaScript**: 前端界面
+- **Emby Plugin API**: 插件接口
 
-#### Option 2: Manual Installation
-
-1. Download the plugin package from [Releases](https://github.com/zainzzz/emby-beautify-plugin/releases)
-2. Extract to your Emby plugins directory:
-   - **Windows**: `%ProgramData%\Emby-Server\plugins\EmbyBeautifyPlugin\`
-   - **Linux**: `/var/lib/emby/plugins/EmbyBeautifyPlugin/`
-   - **Docker**: `/config/plugins/EmbyBeautifyPlugin/`
-3. Restart Emby Server
-4. Enable the plugin in Emby's plugin management page
-
-### First Use
-
-1. Open Emby Web Interface
-2. Go to **Dashboard** → **Plugins** → **Emby Beautify Plugin**
-3. Click **Settings** to configure
-4. Choose a theme and customize to your liking
-5. Save and enjoy your beautiful new interface!
-
-## 📖 Documentation
-
-- **[Installation Guide](EmbyBeautifyPlugin/docs/INSTALLATION.md)** - Detailed installation instructions
-- **[User Manual](EmbyBeautifyPlugin/docs/USER_GUIDE.md)** - Complete feature guide
-- **[Theme Customization](EmbyBeautifyPlugin/docs/THEME_CUSTOMIZATION.md)** - Create custom themes
-- **[Troubleshooting](EmbyBeautifyPlugin/docs/TROUBLESHOOTING.md)** - Common issues and solutions
-- **[Build Scripts](EmbyBeautifyPlugin/scripts/README.md)** - Development and deployment tools
-
-## 🎨 Screenshots
-
-### Light Theme
-![Light Theme](screenshots/light-theme.png)
-
-### Dark Theme
-![Dark Theme](screenshots/dark-theme.png)
-
-### Mobile View
-![Mobile View](screenshots/mobile-view.png)
-
-### Theme Customization
-![Theme Customization](screenshots/customization.png)
-
-## 🛠️ Development
-
-### Prerequisites
-- .NET 6.0 SDK
-- Git
-- Docker (optional, for testing)
-
-### Building from Source
-
-```bash
-# Clone the repository
-git clone https://github.com/zainzzz/emby-beautify-plugin.git
-cd emby-beautify-plugin
-
-# Build the plugin
-cd EmbyBeautifyPlugin
-dotnet restore
-dotnet build -c Release
-
-# Run tests
-cd ../EmbyBeautifyPlugin.Tests
-dotnet test
-
-# Create distribution package
-cd ../EmbyBeautifyPlugin
-./scripts/build-package.sh  # Linux/macOS
-# or
-.\scripts\build-package.ps1  # Windows
-```
-
-### Development Workflow
-
-1. **Make Changes**: Edit source code
-2. **Run Tests**: `dotnet test`
-3. **Build Plugin**: `dotnet build -c Release`
-4. **Test Deploy**: `./scripts/deploy-to-existing-emby.sh`
-5. **Create Package**: `./scripts/build-package.sh`
-
-### Project Structure
-
+### 项目结构
 ```
 EmbyBeautifyPlugin/
-├── Abstracts/           # Abstract base classes
-├── Controllers/         # Web API controllers
-├── Exceptions/          # Custom exceptions
-├── Extensions/          # Extension methods
-├── Interfaces/          # Core interfaces
-├── Models/              # Data models
-├── Services/            # Business logic
-├── Views/               # HTML templates and JS
-├── docs/                # Documentation
-├── scripts/             # Build and deployment scripts
-├── Plugin.cs            # Main plugin entry point
-└── plugin.xml           # Plugin manifest
-
-EmbyBeautifyPlugin.Tests/
-├── *Tests.cs            # Unit tests
-└── TestConfiguration.cs # Test helpers
+├── Controllers/          # API控制器
+├── Services/            # 核心服务
+├── Models/              # 数据模型
+├── Views/               # 前端页面
+├── Abstracts/           # 抽象基类
+├── Interfaces/          # 接口定义
+└── Extensions/          # 扩展方法
 ```
 
-## 🤝 Contributing
+### 构建说明
+```bash
+# 克隆项目
+git clone https://github.com/zainzzz/emby-beautify-plugin.git
 
-We welcome contributions! Here's how you can help:
+# 进入项目目录
+cd emby-beautify-plugin
 
-### Ways to Contribute
-- 🐛 **Report Bugs**: [Create an issue](https://github.com/zainzzz/emby-beautify-plugin/issues/new)
-- 💡 **Suggest Features**: [Start a discussion](https://github.com/zainzzz/emby-beautify-plugin/discussions)
-- 🎨 **Share Themes**: Submit your custom themes
-- 📝 **Improve Docs**: Help make documentation better
-- 💻 **Code**: Submit pull requests
+# 构建项目
+dotnet build -c Release
 
-### Development Guidelines
-1. Fork the repository
-2. Create a feature branch: `git checkout -b feature/amazing-feature`
-3. Make your changes and add tests
-4. Ensure all tests pass: `dotnet test`
-5. Commit your changes: `git commit -m 'Add amazing feature'`
-6. Push to the branch: `git push origin feature/amazing-feature`
-7. Open a Pull Request
+# 运行测试
+dotnet test
 
-### Code Style
-- Follow C# coding conventions
-- Add XML documentation for public APIs
-- Include unit tests for new features
-- Use meaningful commit messages
+# 打包插件
+.\scripts\build-package.ps1
+```
 
-## 📋 Roadmap
+## 贡献指南
 
-### v1.1.0 (Next Release)
-- [ ] Theme Store integration
-- [ ] Visual theme editor
-- [ ] More built-in themes
-- [ ] Performance improvements
+我们欢迎社区贡献！请遵循以下步骤：
 
-### v1.2.0 (Future)
-- [ ] Plugin ecosystem support
-- [ ] Multi-language support
-- [ ] Advanced animation controls
-- [ ] Usage analytics
+1. Fork 本项目
+2. 创建功能分支 (`git checkout -b feature/AmazingFeature`)
+3. 提交更改 (`git commit -m 'Add some AmazingFeature'`)
+4. 推送到分支 (`git push origin feature/AmazingFeature`)
+5. 创建 Pull Request
 
-### v2.0.0 (Long-term)
-- [ ] Complete UI overhaul
-- [ ] Mobile app integration
-- [ ] Cloud theme sync
-- [ ] AI-powered theme suggestions
+## 问题反馈
 
-## 🆘 Support
+如果您遇到问题或有建议，请：
 
-### Getting Help
-1. **Documentation**: Check our [comprehensive docs](EmbyBeautifyPlugin/docs/)
-2. **Issues**: [Search existing issues](https://github.com/zainzzz/emby-beautify-plugin/issues)
-3. **Discussions**: [Community discussions](https://github.com/zainzzz/emby-beautify-plugin/discussions)
-4. **Emby Forum**: [Official Emby community](https://emby.media/community/)
+1. 查看 [故障排除指南](docs/TROUBLESHOOTING.md)
+2. 搜索现有的 [Issues](https://github.com/zainzzz/emby-beautify-plugin/issues)
+3. 创建新的 Issue 并提供详细信息
 
-### Reporting Issues
-When reporting issues, please include:
-- Emby Server version
-- Operating system and browser
-- Plugin version
-- Steps to reproduce
-- Error logs (if any)
+## 许可证
 
-## 📄 License
+本项目采用 MIT 许可证 - 查看 [LICENSE](LICENSE) 文件了解详情。
 
-This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
+## 更新日志
 
-## 🙏 Acknowledgments
+### v1.0.0 (2024-01-20)
+- 🎉 首次发布
+- ✨ 完整的主题定制功能
+- 🚀 性能优化和缓存机制
+- 📱 响应式设计支持
+- 🎨 多种内置主题
+- 🔧 完善的配置界面
 
-- **Emby Team**: For creating an amazing media server
-- **Contributors**: Everyone who has contributed to this project
-- **Community**: Users who provide feedback and support
-- **Open Source**: Built with love using open source technologies
+## 致谢
 
-## 📊 Stats
-
-![GitHub stars](https://img.shields.io/github/stars/zainzzz/emby-beautify-plugin?style=social)
-![GitHub forks](https://img.shields.io/github/forks/zainzzz/emby-beautify-plugin?style=social)
-![GitHub issues](https://img.shields.io/github/issues/zainzzz/emby-beautify-plugin)
-![GitHub pull requests](https://img.shields.io/github/issues-pr/zainzzz/emby-beautify-plugin)
+感谢所有为本项目做出贡献的开发者和用户！
 
 ---
 
-**Made with ❤️ for the Emby community**
-
-If you find this plugin useful, please consider giving it a ⭐ star and sharing it with other Emby users!
+**EmbyBeautifyPlugin** - 让您的Emby更加美观和易用！
